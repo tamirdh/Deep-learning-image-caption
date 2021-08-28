@@ -51,12 +51,12 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
 
     # start epochs
     for epoch in range(max_epochs):
-        for idx, (img, captions) in tqdm(
+        for idx, (img, captions, length) in tqdm(
             enumerate(data_loader), total=len(data_loader), leave=False
         ):
             img = img.to(device)
             captions = captions.to(device).long()
-            output = model(img, captions).to(device)
+            output = model(img, captions, length).to(device)
             loss = criterion(
                 output.reshape(-1, output.shape[2]), captions.reshape(-1))
             optimizer.zero_grad()
@@ -66,9 +66,9 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                 torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
                             
                 dataiter = iter(data_loader)
-                img_show, cap = next(dataiter)
+                img_show, cap, cap_len = next(dataiter)
                 output = model(img_show.to(device),
-                               cap.to(device).long()).to(device)
+                               cap.to(device).long(), cap_len).to(device)
                 print(f"\n\nLoss {loss.item():.5f}\n")
                 print(f"\nForward\n")
                 out_cap = torch.argmax(output[0], dim=1)
@@ -115,19 +115,19 @@ def overfit(model, device, data_loader, T=250):
 
 
     dataiter = iter(data_loader)
-    img, caption = next(dataiter)
+    img, caption, length = next(dataiter)
     for i in tqdm_bar(range(T)):
         # train on the same image and caption to achieve overfitting
         img = img.to(device)
         caption = caption.to(device).long()
-        output = model(img, caption).to(device)
+        output = model(img, caption, length).to(device)
         loss = criterion(
             output.reshape(-1, output.shape[2]), caption.reshape(-1))
         optimizer.zero_grad()
         loss.backward(loss)
         optimizer.step()
 
-    output = model(img, caption).to(device)
+    output = model(img, caption, length).to(device)
     show_img = img.to("cpu")
     print(f"\n\nLoss {loss.item():.5f}\n")
     out_cap = torch.argmax(output[0], dim=1)
