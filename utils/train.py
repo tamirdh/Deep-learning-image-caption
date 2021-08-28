@@ -62,31 +62,31 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
             optimizer.zero_grad()
             loss.backward(loss)
             optimizer.step()
-            print(f"Memory: {torch.cuda.list_gpu_processes()}")
-            print(f'{torch.cuda.memory_stats()}')
             if idx > 0 and idx % 250 == 0:
                 dataiter = iter(data_loader)
                 img_show, cap = next(dataiter)
                 output = model(img_show.to(device),
                                cap.to(device).long()).to(device)
-                show_img = img_show.to("cpu")
                 print(f"\n\nLoss {loss.item():.5f}\n")
-                # print(f"\nForward\n")
+                print(f"\nForward\n")
                 out_cap = torch.argmax(output[0], dim=1)
                 demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
                 )] for idx2 in out_cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-                show_image(show_img[0], title=demo_cap, f_name="Forward.png")
+                #show_image(show_img[0], title=demo_cap, f_name="Forward.png")
+                print(demo_cap)
                 demo_cap = model.caption_images(img_show[0:1].to(
                     device), vocab=data_loader.dataset.vocab, max_len=30)
                 demo_cap = ' '.join(demo_cap)
                 print("Predicted")
-                show_image(img_show[0], title=demo_cap, f_name="Predicted.png")
+                print(demo_cap)
+                #show_image(img_show[0], title=demo_cap, f_name="Predicted.png")
                 print("Original")
                 cap = cap[0]
-                print(cap.long())
+                #print(cap.long())
                 demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
                 )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-                show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
+                print(demo_cap)
+                #show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
 
     return model
 
