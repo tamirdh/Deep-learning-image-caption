@@ -7,7 +7,7 @@ from functools import partial
 from tqdm import tqdm
 
 
-def show_image(img, title=None, transform=True):
+def show_image(img, title=None, transform=True, f_name=""):
     """Imshow for Tensor."""
 
     # unnormalize
@@ -21,10 +21,10 @@ def show_image(img, title=None, transform=True):
 
     img = img.numpy().transpose((1, 2, 0))
 
-    plt.imshow(img)
     # title = title.replace("<SOS>","").replace("<EOS>", "")
     if title is not None:
         plt.title(title)
+    plt.imsave(f_name,img)
     plt.pause(0.001)  # pause a bit so that plots are updated
 
 
@@ -74,18 +74,18 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                 out_cap = torch.argmax(output[0], dim=1)
                 demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
                 )] for idx2 in out_cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-                show_image(show_img[0], title=demo_cap)
+                show_image(show_img[0], title=demo_cap, f_name="Forward.png")
                 demo_cap = model.caption_images(img_show[0:1].to(
                     device), vocab=data_loader.dataset.vocab, max_len=30)
                 demo_cap = ' '.join(demo_cap)
                 print("Predicted")
-                show_image(img_show[0], title=demo_cap)
+                show_image(img_show[0], title=demo_cap, f_name="Predicted.png")
                 print("Original")
                 cap = cap[0]
                 print(cap.long())
                 demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
                 )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-                show_image(img_show[0], title=demo_cap, transform=False)
+                show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
 
     return model
 
@@ -99,7 +99,7 @@ def overfit(model,device, data_loader, T=250):
         data_loader ([type]): Dataloader
         T (int, optional): How many iterations to run training for. Defaults to 250.
     """
-    tqdm_bar = partial(tqdm(enumerate(data_loader), total=len(data_loader)), position=0, leave=True)
+    tqdm_bar = partial(tqdm, position=0, leave=True)
 
     learning_rate = 3e-4
 
@@ -128,7 +128,7 @@ def overfit(model,device, data_loader, T=250):
     print(f"\n\nLoss {loss.item():.5f}\n")
     out_cap = torch.argmax(output[0],dim=1)
     demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item()] for idx2 in out_cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-    show_image(show_img[0],title=demo_cap)
+    show_image(show_img[0],title=demo_cap, f_name="Forward.png")
     print("Predicted")
     with torch.no_grad():
         model.eval()
@@ -136,9 +136,9 @@ def overfit(model,device, data_loader, T=250):
         demo_cap = ' '.join(demo_cap)
         model.train()
         
-        show_image(show_img[0],title=demo_cap, transform=False)
+        show_image(show_img[0],title=demo_cap, transform=False, f_name="Predicted.png")
     print("Original")
     cap = caption[0]
     #print(cap.long())
     demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item()] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-    show_image(show_img[0],title=demo_cap, transform=False)
+    show_image(show_img[0],title=demo_cap, transform=False, f_name="Original.png")
