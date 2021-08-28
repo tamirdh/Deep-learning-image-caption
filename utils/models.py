@@ -155,6 +155,8 @@ class DecoderRNNEGreed(DecoderRNNV2):
             ci = torch.zeros((self.num_layers, 1, self.hidden_size)).to(device)
             output = list()
             for i in range(captions.size(1)):
+                print(f"feat: {features.shape}")
+                print(f"w_embed:{w_embed.shape}")
                 combined = torch.cat((features, w_embed), dim=2)
                 if i == 0:
                     lstm_out, (hi, ci) = self.lstm(combined)
