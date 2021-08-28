@@ -5,7 +5,7 @@ from pycocotools.coco import COCO
 from PIL import Image
 import pickle
 from .vocab import Vocabulary
-
+import os
 
 class COCODataset(Dataset):
     """
