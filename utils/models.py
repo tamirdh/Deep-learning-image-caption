@@ -124,7 +124,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
         # validate inputs are the same batch size
         assert features.size(0) == captions.size(0)
         batch_size = features.size(0)
-        if self.counter > 10000:
+        if self.counter > 1:
             self.eps_greedy = True
         # (h_0, c_0) will be initialized to zeros by default
         if not self.eps_greedy or self.use_caption_eps_greedy():
