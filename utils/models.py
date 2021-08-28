@@ -124,6 +124,8 @@ class DecoderRNNEGreed(DecoderRNNV2):
         # validate inputs are the same batch size
         assert features.size(0) == captions.size(0)
         batch_size = features.size(0)
+        features = torch.unsqueeze(features, 1)
+
         if self.counter > 1:
             self.eps_greedy = True
         # (h_0, c_0) will be initialized to zeros by default
@@ -134,7 +136,6 @@ class DecoderRNNEGreed(DecoderRNNV2):
             captions_embed = self.embed(captions)
             # features, shape (B, F)
             # features transform shape to (B, L, F)
-            features = torch.unsqueeze(features, dim=1)
             # (1,1,2048) -> (1,77, 2048)
             features = features.repeat((1, captions_embed.size(1), 1))
             # combine features + captions to shape (B, L, E+F) (1,77,2048) -> (1,77,2448)
@@ -150,7 +151,6 @@ class DecoderRNNEGreed(DecoderRNNV2):
             w0 = torch.unsqueeze(w0, 0)
             w0 = w0.repeat((batch_size, 1, 1))
             w_embed = self.embed(w0)
-            features = torch.unsqueeze(features, 1)
             hi = torch.zeros((self.num_layers, 1, self.hidden_size)).to(device)
             ci = torch.zeros((self.num_layers, 1, self.hidden_size)).to(device)
             output = list()
