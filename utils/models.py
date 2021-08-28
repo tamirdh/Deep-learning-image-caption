@@ -148,7 +148,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
             # w_embed: (1) -> (B,1,E)
             w0 = torch.tensor([1]).to(device)
             print(f"{w0.shape}")
-            w0 = w0.repeat((batch_size, 1, 1))
+            w0 = w0.repeat((batch_size, 1))
             print(f"{w0.shape}")
             w_embed = self.embed(w0)
             print(f"{w_embed.shape}")
