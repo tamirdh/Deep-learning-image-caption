@@ -37,10 +37,10 @@ class Vocabulary:
                 if frequencies[word] == self.freq_threshold:
                     self.stoi[word] = idx
                     self.itos[idx] = word
-                    if idx > 0 and idx % 1000 == 0:
+                    if idx > 0 and idx % 10000 == 0:
                         print(f"Added {idx} words to vocab")
                     idx += 1
-            if index > 0 and index % 1000 == 0:
+            if index > 0 and index % 100000 == 0:
                 print(f"Iterated {index} sentences")
 
         print(f"Done, added {idx-1} words to vocabulary")
