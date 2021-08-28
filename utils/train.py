@@ -9,7 +9,6 @@ from tqdm import tqdm
 
 def show_image(img, title=None, transform=True, f_name=""):
     """Imshow for Tensor."""
-
     # unnormalize
     if transform:
         img[0] = img[0] * 0.229
