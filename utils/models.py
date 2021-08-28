@@ -301,9 +301,9 @@ class CNNtoRNN(nn.Module):
         self.decoderRNN = DecoderRNNEGreed(
             embed_size, hidden_size, vocab_size, features).to(device)
 
-    def forward(self, images, captions, show=False):
+    def forward(self, images, captions, length):
         features = self.encoderCNN(images)
-        outputs = self.decoderRNN(features, captions)
+        outputs = self.decoderRNN(features, captions, length)
         return outputs
 
     def caption_images(self, image, vocab, max_len=50):
