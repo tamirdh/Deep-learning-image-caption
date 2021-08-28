@@ -147,17 +147,12 @@ class DecoderRNNEGreed(DecoderRNNV2):
             # features: (B,F) -> (B,1,F)
             # w_embed: (1) -> (B,1,E)
             w0 = torch.tensor([1]).to(device)
-            print(f"{w0.shape}")
             w0 = w0.repeat((batch_size, 1))
-            print(f"{w0.shape}")
             w_embed = self.embed(w0)
-            print(f"{w_embed.shape}")
             hi = torch.zeros((self.num_layers, 1, self.hidden_size)).to(device)
             ci = torch.zeros((self.num_layers, 1, self.hidden_size)).to(device)
             output = list()
             for i in range(captions.size(1)):
-                print(f"feat: {features.shape}")
-                print(f"w_embed:{w_embed.shape}")
                 combined = torch.cat((features, w_embed), dim=2)
                 if i == 0:
                     lstm_out, (hi, ci) = self.lstm(combined)
@@ -169,7 +164,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
                 # hi, ci: (num_layers, 1, F)
                 # next_w: (1,1,vocab_size)
                 w_embed = self.embed(next_w)
-            return output
+            return torch.as_tensor(output)
 
     def use_caption_eps_greedy(self) -> bool:
         n = random.uniform(0,1)
