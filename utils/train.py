@@ -99,7 +99,7 @@ def overfit(model,device, data_loader, T=250):
         data_loader ([type]): Dataloader
         T (int, optional): How many iterations to run training for. Defaults to 250.
     """
-    tqdm = partial(tqdm(enumerate(data_loader), total=len(data_loader)), position=0, leave=True)
+    tqdm_bar = partial(tqdm(enumerate(data_loader), total=len(data_loader)), position=0, leave=True)
 
     learning_rate = 3e-4
 
@@ -113,7 +113,7 @@ def overfit(model,device, data_loader, T=250):
     
     dataiter = iter(data_loader)
     img,caption = next(dataiter)
-    for i in tqdm(range(T)):
+    for i in tqdm_bar(range(T)):
         # train on the same image and caption to achieve overfitting
         img = img.to(device)
         caption = caption.to(device).long()
