@@ -258,7 +258,8 @@ class DecoderRNNEGreed(DecoderRNNV2):
             packed = pack_padded_sequence(combined, cap_lengths, batch_first=True, enforce_sorted=False)
             # run through the LSTM network and get output of shape (B, L, H)
             lstm_out, _ = self.lstm(packed)
-            return self.fc_out(lstm_out)
+            output_padded, _ = pad_packed_sequence(lstm_out, batch_first=True)
+            return self.fc_out(output_padded)
         else:
             # features: (B,F) -> (B,1,F)
             # w_embed: (1) -> (B,1,E)
