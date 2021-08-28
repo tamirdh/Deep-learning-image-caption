@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 from pycocotools.coco import COCO
 from PIL import Image
 import pickle
+from vocab import Vocabulary
 
 
 class COCODataset(Dataset):
