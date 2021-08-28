@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 #SBATCH --job-name=DLWSHP
 #SBATCH --output=DLWSHP.out
