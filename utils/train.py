@@ -2,7 +2,7 @@ import torch.optim as optim
 from tqdm import tqdm
 from torch.nn import CrossEntropyLoss
 import matplotlib.pyplot as plt
-import torch.argmax
+import torch
 from functools import partial
 
 
