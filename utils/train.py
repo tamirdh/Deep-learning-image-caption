@@ -86,6 +86,8 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                 demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
                 )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
                 show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
+        del img
+        del captions
 
     return model
 
