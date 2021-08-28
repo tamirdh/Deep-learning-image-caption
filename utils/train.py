@@ -23,7 +23,8 @@ def show_image(img, title=None, transform=True, f_name=""):
     # title = title.replace("<SOS>","").replace("<EOS>", "")
     if title is not None:
         plt.title(title)
-    plt.imsave(f_name,img)
+    plt.imsave(f'{f_name.replace(".png", "")}_{title}.png',img)
+    print(f'Saved {f_name} with caption {plt.title}')
     plt.pause(0.001)  # pause a bit so that plots are updated
 
 
