@@ -1,4 +1,5 @@
 import torch.optim as optim
+from tqdm import tqdm
 from torch.nn import CrossEntropyLoss
 import matplotlib.pyplot as plt
 import torch
@@ -98,7 +99,7 @@ def overfit(model,device, data_loader, T=250):
         data_loader ([type]): Dataloader
         T (int, optional): How many iterations to run training for. Defaults to 250.
     """
-    tqdm = partial(tqdm, position=0, leave=True)
+    tqdm = partial(tqdm(enumerate(data_loader), total=len(data_loader)), position=0, leave=True)
 
     learning_rate = 3e-4
 
