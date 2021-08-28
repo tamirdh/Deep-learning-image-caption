@@ -281,7 +281,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
                 # hi, ci: (num_layers, 1, F)
                 # next_w: (1,1,vocab_size)
                 w_embed = self.embed(next_w)
-            return torch.tensor(output)
+            return torch.cat(output, dim=1)
 
     def use_caption_eps_greedy(self) -> bool:
         n = random.uniform(0, 1)
