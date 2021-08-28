@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+import random
+
 
 device = None
 
@@ -19,7 +21,8 @@ class EncoderCNN(nn.Module):
     def __init__(self, output_size, train_CNN=False):
         super(EncoderCNN, self).__init__()
         self.train_CNN = train_CNN
-        self.inception = models.inception_v3(pretrained= not self.train_CNN, aux_logits=False)
+        self.inception = models.inception_v3(
+            pretrained=not self.train_CNN, aux_logits=False)
         self.inception.fc = nn.Linear(
             self.inception.fc.in_features, output_size)
         self.relu = nn.ReLU()
@@ -106,6 +109,75 @@ class DecoderRNNV2(nn.Module):
         return output
 
 
+class DecoderRNNEGreed(DecoderRNNV2):
+    def __init__(self, embed_size, hidden_size, vocab_size, n_features):
+        super().__init__(embed_size, hidden_size, vocab_size, n_features)
+        self.eps_greedy = False
+        self.counter = 0
+        self.greed_selector = 1
+
+    def forward(self, features, captions):
+        '''
+        Uses a combination of the image and caption vector in the lstm
+        to predict each word in the embedding layer
+        '''
+        # validate inputs are the same batch size
+        assert features.size(0) == captions.size(0)
+        batch_size = features.size(0)
+        if self.counter > 10000:
+            self.eps_greedy = True
+        # (h_0, c_0) will be initialized to zeros by default
+        if not self.eps_greedy or self.use_caption_eps_greedy():
+            # Advance counter towards eps greedy policy
+            self.counter += 1
+            # embed captions, shape (B, L, E)
+            captions_embed = self.embed(captions)
+            # features, shape (B, F)
+            # features transform shape to (B, L, F)
+            features = torch.unsqueeze(features, dim=1)
+            # (1,1,2048) -> (1,77, 2048)
+            features = features.repeat((1, captions_embed.size(1), 1))
+            # combine features + captions to shape (B, L, E+F) (1,77,2048) -> (1,77,2448)
+            combined = torch.cat((features, captions_embed), dim=2)
+            # run through the LSTM network and get output of shape (B, L, H)
+            lstm_out, _ = self.lstm(combined)
+            return self.fc_out(lstm_out)
+        else:
+            # features: (B,F) -> (B,1,F)
+            # w_embed: (1) -> (B,1,E)
+            w0 = torch.tensor([1]).to(device)
+            w0 = torch.unsqueeze(w0, 0)
+            w0 = torch.unsqueeze(w0, 0)
+            w0 = w0.repeat((batch_size, 1, 1))
+            w_embed = self.embed(w0)
+            features = torch.unsqueeze(features, 1)
+            hi = torch.zeros((self.num_layers, 1, self.hidden_size)).to(device)
+            ci = torch.zeros((self.num_layers, 1, self.hidden_size)).to(device)
+            output = list()
+            for i in range(captions.size(1)):
+                combined = torch.cat((features, w_embed), dim=2)
+                if i == 0:
+                    lstm_out, (hi, ci) = self.lstm(combined)
+                else:
+                    lstm_out, (hi, ci) = self.lstm(combined, (hi, ci))
+                output.append(self.fc_out(lstm_out))
+                next_w = torch.argmax(self.fc_out(lstm_out), dim=2)
+                # lstm_out: (1,1,F)
+                # hi, ci: (num_layers, 1, F)
+                # next_w: (1,1,vocab_size)
+                w_embed = self.embed(next_w)
+            return output
+
+    def use_caption_eps_greedy(self) -> bool:
+        n = random.uniform(0,1)
+        eps = 1/self.greed_selector
+        self.greed_selector += 1
+        if eps >=n:
+            return True
+        else:
+            return False
+
+
 class DecoderRNN(nn.Module):
     def __init__(self, embed_size, hidden_size, vocab_size):
         super(DecoderRNN, self).__init__()
@@ -167,7 +239,7 @@ class CNNtoRNN(nn.Module):
         device = get_device(1)
         super(CNNtoRNN, self).__init__()
         self.encoderCNN = EncoderCNN(features, train_CNN).to(device)
-        self.decoderRNN = DecoderRNNV2(
+        self.decoderRNN = DecoderRNNEGreed(
             embed_size, hidden_size, vocab_size, features).to(device)
 
     def forward(self, images, captions, show=False):
