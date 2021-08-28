@@ -28,7 +28,9 @@ def init_args():
 
 if __name__ == '__main__':
     args = init_args()
+    print(args)
     shuffle = not args.overfit
+    print(f"Shuffling dataset:{shuffle}")
     device = get_device(1)
     dataset = get_dataset(args.data, args.annot,
                           args.v_thresh, args.load_vocab)
