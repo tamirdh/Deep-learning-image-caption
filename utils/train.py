@@ -1,9 +1,9 @@
 import torch.optim as optim
-from tqdm import tqdm
 from torch.nn import CrossEntropyLoss
 import matplotlib.pyplot as plt
 import torch
 from functools import partial
+from tqdm import tqdm
 
 
 def show_image(img, title=None, transform=True):
