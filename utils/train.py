@@ -63,7 +63,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
             optimizer.zero_grad()
             loss.backward(loss)
             optimizer.step()
-            if idx > 0 and idx % 2500 == 0:
+            if idx > 0 and idx % progress == 0:
                 torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
                             
                 dataiter = iter(data_loader)

@@ -23,6 +23,7 @@ def init_args():
     parser.add_argument("--batch", type=int, default=4,
                         help="Batch size for dataloader")
     parser.add_argument("T", type=int, help="Number of epochs to run")
+    parser.add_argument("--progress", type=int, default=250, help="Show training loss every X iterations")
     return parser.parse_args()
 
 
@@ -42,6 +43,6 @@ if __name__ == '__main__':
     if args.overfit:
         overfit(model, device, data_loader, args.T)
     else:
-        train(args.T, model, data_loader, device)
+        train(args.T, model, data_loader, device, args.progress)
     
     del model
