@@ -264,6 +264,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
             # features: (B,F) -> (B,1,F)
             # w_embed: (1) -> (B,1,E)
             # W0 is <SOS>
+            print("Using prediction learning")
             w0 = torch.tensor([1]).to(device)
             w0 = w0.repeat((batch_size, 1))
             w_embed = self.embed(w0)

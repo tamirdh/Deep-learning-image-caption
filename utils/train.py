@@ -128,6 +128,7 @@ def overfit(model, device, data_loader, T=250):
         optimizer.step()
         if i % 2 ==0:
             with torch.no_grad():
+                print(f"iteration: {i}")
                 print(f"\nLoss:{loss}\n")
                 print("Predicted:\n")
                 model.eval()
