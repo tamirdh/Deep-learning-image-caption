@@ -241,7 +241,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
         batch_size = features.size(0)
         features = torch.unsqueeze(features, 1)
 
-        if self.counter > 10000:
+        if self.counter > 0:
             self.eps_greedy = True
         # (h_0, c_0) will be initialized to zeros by default
         if not self.eps_greedy or self.use_caption_eps_greedy():
@@ -286,7 +286,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
             return torch.cat(output, dim=1)
 
     def use_caption_eps_greedy(self) -> bool:
-        return True
+        return False
         n = random.uniform(0, 1)
         eps = 1/self.greed_selector
         self.greed_selector += 1
