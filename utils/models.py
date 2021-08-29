@@ -263,11 +263,12 @@ class DecoderRNNEGreed(DecoderRNNV2):
         else:
             # features: (B,F) -> (B,1,F)
             # w_embed: (1) -> (B,1,E)
+            # W0 is <SOS>
             w0 = torch.tensor([1]).to(device)
             w0 = w0.repeat((batch_size, 1))
             w_embed = self.embed(w0)
-            hi = torch.zeros((self.num_layers, 1, self.hidden_size)).to(device)
-            ci = torch.zeros((self.num_layers, 1, self.hidden_size)).to(device)
+            hi = None
+            ci = None
             output = list()
             for i in range(captions.size(1)):
                 combined = torch.cat((features, w_embed), dim=2)
@@ -275,8 +276,9 @@ class DecoderRNNEGreed(DecoderRNNV2):
                     lstm_out, (hi, ci) = self.lstm(combined)
                 else:
                     lstm_out, (hi, ci) = self.lstm(combined, (hi, ci))
-                output.append(self.fc_out(lstm_out))
-                next_w = torch.argmax(self.fc_out(lstm_out), dim=2)
+                res = self.fc_out(lstm_out)
+                output.append(res)
+                next_w = torch.argmax(res, dim=2)
                 # lstm_out: (1,1,H)
                 # hi, ci: (num_layers, 1, H)
                 # next_w: (1,1,vocab_size)
@@ -293,6 +295,35 @@ class DecoderRNNEGreed(DecoderRNNV2):
         else:
             return False
 
+    def caption_features(self, features, vocab, vec_len):
+        '''
+        Vec_len should be the same as is learning. 
+        '''
+        assert features.size(
+            0) == 1, "Caption features doesn't support batches"
+        # features: (B,F) -> (1,1,F)
+        # w_embed: (1) -> (1,1,E)
+        w0 = torch.tensor(vocab.stoi["<SOS>"]).to(device)
+        w0 = w0.repeat((1, 1))
+        w_embed = self.embed(w0)
+        features = torch.unsqueeze(features, 1)
+        hi = None
+        ci = None
+        output = list()
+        for i in range(vec_len):
+            combined = torch.cat((features, w_embed), dim=2)
+            if i == 0:
+                lstm_out, (hi, ci) = self.lstm(combined)
+            else:
+                lstm_out, (hi, ci) = self.lstm(combined, (hi, ci))
+            res = self.fc_out(lstm_out)
+            next_w = torch.argmax(res, dim=2)
+            output.append(vocab.itos[next_w])
+            # lstm_out: (1,1,F)
+            # hi, ci: (num_layers, 1, F)
+            # next_w: (1,1,vocab_size)
+            w_embed = self.embed(next_w)
+        return output
 
 class CNNtoRNN(nn.Module):
     def __init__(self, features, embed_size, hidden_size, vocab_size, train_CNN=False):
