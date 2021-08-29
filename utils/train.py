@@ -133,7 +133,8 @@ def overfit(model, device, data_loader, T=250):
     out_cap = torch.argmax(output[0], dim=1)
     demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
     )] for idx2 in out_cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-    show_image(show_img[0], title=demo_cap, f_name="Forward.png")
+    print(demo_cap)
+    #show_image(show_img[0], title=demo_cap, f_name="Forward.png")
     print("Predicted")
     with torch.no_grad():
         model.eval()
@@ -141,13 +142,14 @@ def overfit(model, device, data_loader, T=250):
             device), vocab=data_loader.dataset.vocab, max_len=15)
         demo_cap = ' '.join(demo_cap)
         model.train()
-
-        show_image(show_img[0], title=demo_cap,
-                   transform=False, f_name="Predicted.png")
+        print(demo_cap)
+    #    show_image(show_img[0], title=demo_cap,
+    #               transform=False, f_name="Predicted.png")
     print("Original")
     cap = caption[0]
     # print(cap.long())
     demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
     )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-    show_image(show_img[0], title=demo_cap,
-               transform=False, f_name="Original.png")
+    #show_image(show_img[0], title=demo_cap,
+    #           transform=False, f_name="Original.png")
+    print(demo_cap)
