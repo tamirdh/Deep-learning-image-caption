@@ -6,7 +6,7 @@ import torch
 from functools import partial
 from tqdm import tqdm
 import random
-
+import sys
 def show_image(img, title=None, transform=True, f_name=""):
     """Imshow for Tensor."""
     # unnormalize
@@ -51,6 +51,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
 
     # start epochs
     for epoch in range(max_epochs):
+        print(f"Epoch:{epoch}", file=sys.stderr)
         for idx, (img, captions, length) in tqdm(
             enumerate(data_loader), total=len(data_loader), leave=False
         ):
