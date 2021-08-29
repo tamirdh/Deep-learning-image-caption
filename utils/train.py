@@ -42,7 +42,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
         [type]: Trained model
     """
     # Hyperparameters
-    learning_rate = 3e-4
+    learning_rate = 1e-2
     # init model
     model = model.to(device)
     criterion = CrossEntropyLoss()
