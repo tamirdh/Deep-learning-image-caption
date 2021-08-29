@@ -318,7 +318,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
                 lstm_out, (hi, ci) = self.lstm(combined, (hi, ci))
             res = self.fc_out(lstm_out)
             next_w = torch.argmax(res, dim=2)
-            output.append(vocab.itos[next_w])
+            output.append(vocab.itos[next_w.item()])
             # lstm_out: (1,1,F)
             # hi, ci: (num_layers, 1, F)
             # next_w: (1,1,vocab_size)
