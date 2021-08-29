@@ -241,12 +241,12 @@ class DecoderRNNEGreed(DecoderRNNV2):
         batch_size = features.size(0)
         features = torch.unsqueeze(features, 1)
 
-        if self.counter > 0:
+        if self.counter > 100:
             self.eps_greedy = True
         # (h_0, c_0) will be initialized to zeros by default
-        if (not self.eps_greedy or self.use_caption_eps_greedy()) and False:
+        if not self.eps_greedy or self.use_caption_eps_greedy():
             # Advance counter towards eps greedy policy
-            #self.counter += 1
+            self.counter += 1
             # embed captions, shape (B, L, E)
             captions_embed = self.embed(captions)
             # features, shape (B, F)
@@ -264,7 +264,6 @@ class DecoderRNNEGreed(DecoderRNNV2):
             # features: (B,F) -> (B,1,F)
             # w_embed: (1) -> (B,1,E)
             # W0 is <SOS>
-            print("Using prediction learning")
             w0 = torch.tensor([1]).to(device)
             w0 = w0.repeat((batch_size, 1))
             w_embed = self.embed(w0)
@@ -287,7 +286,6 @@ class DecoderRNNEGreed(DecoderRNNV2):
             return torch.cat(output, dim=1)
 
     def use_caption_eps_greedy(self) -> bool:
-        return False
         n = random.uniform(0, 1)
         eps = 1/self.greed_selector
         self.greed_selector += 1
