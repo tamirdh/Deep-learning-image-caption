@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import torch
 from functools import partial
 from tqdm import tqdm
-
+import random
 
 def show_image(img, title=None, transform=True, f_name=""):
     """Imshow for Tensor."""
@@ -116,10 +116,11 @@ def overfit(model, device, data_loader, T=250):
 
     dataiter = iter(data_loader)
     img, caption, length = next(dataiter)
+    img = img.to(device)
+    caption = caption.to(device).long()
     for i in tqdm_bar(range(T)):
+        index = random.choice([0,1,2])
         # train on the same image and caption to achieve overfitting
-        img = img.to(device)
-        caption = caption.to(device).long()
         output = model(img, caption, length).to(device)
         loss = criterion(
             output.reshape(-1, output.shape[2]), caption.reshape(-1))
@@ -131,7 +132,7 @@ def overfit(model, device, data_loader, T=250):
             print(f"Loss:{loss}")
             print("Predicted:")
             model.eval()
-            demo_cap = model.caption_images(img[0:1].to(
+            demo_cap = model.caption_images(img[index:index+1].to(
                 device), vocab=data_loader.dataset.vocab, max_len=15)
             demo_cap = ' '.join(demo_cap)
             model.train()

@@ -241,7 +241,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
         batch_size = features.size(0)
         features = torch.unsqueeze(features, 1)
 
-        if self.counter > 100:
+        if self.counter > 10000:
             self.eps_greedy = True
         # (h_0, c_0) will be initialized to zeros by default
         if not self.eps_greedy or self.use_caption_eps_greedy():
