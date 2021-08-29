@@ -244,7 +244,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
         if self.counter > 0:
             self.eps_greedy = True
         # (h_0, c_0) will be initialized to zeros by default
-        if not self.eps_greedy or self.use_caption_eps_greedy():
+        if (not self.eps_greedy or self.use_caption_eps_greedy()) and False:
             # Advance counter towards eps greedy policy
             #self.counter += 1
             # embed captions, shape (B, L, E)
