@@ -246,7 +246,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
         # (h_0, c_0) will be initialized to zeros by default
         if not self.eps_greedy or self.use_caption_eps_greedy():
             # Advance counter towards eps greedy policy
-            self.counter += 1
+            #self.counter += 1
             # embed captions, shape (B, L, E)
             captions_embed = self.embed(captions)
             # features, shape (B, F)
@@ -284,6 +284,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
             return torch.cat(output, dim=1)
 
     def use_caption_eps_greedy(self) -> bool:
+        return True
         n = random.uniform(0, 1)
         eps = 1/self.greed_selector
         self.greed_selector += 1
