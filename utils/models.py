@@ -322,6 +322,8 @@ class DecoderRNNEGreed(DecoderRNNV2):
             # lstm_out: (1,1,F)
             # hi, ci: (num_layers, 1, F)
             # next_w: (1,1,vocab_size)
+            if next_w.item() == vocab.stoi["<EOS>"]:
+                break
             w_embed = self.embed(next_w)
         return output
 
