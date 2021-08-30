@@ -332,7 +332,7 @@ class CNNtoRNN(nn.Module):
         device = get_device(1)
         super(CNNtoRNN, self).__init__()
         self.encoderCNN = EncoderCNN(features, train_CNN).to(device)
-        self.decoderRNN = DecoderRNNEGreed(
+        self.decoderRNN = DecoderRNNV3(
             embed_size, hidden_size, vocab_size, features).to(device)
 
     def forward(self, images, captions, length):
