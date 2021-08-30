@@ -41,9 +41,10 @@ if __name__ == '__main__':
     hidden_size = 512
     vocab_size = len(dataset.vocab)
     model = CNNtoRNN(2048, embed_size, hidden_size, vocab_size)
-    model.load_state_dict(torch.load("checkpoint.torch")["model_state_dict"])
+    
     if args.overfit:
         #overfit(model, device, data_loader, args.T)
+        model.load_state_dict(torch.load("checkpoint.torch")["model_state_dict"])
         validate_model(model, data_loader)
 
     else:
