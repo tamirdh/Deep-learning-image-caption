@@ -1,9 +1,10 @@
 from PIL.Image import init
 from utils.models import CNNtoRNN, get_device
 from utils.dataset import get_dataloader, get_dataset
-from utils.train import overfit, train
+from utils.train import overfit, train, validate_model
 import argparse
 import os
+import torch
 
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
@@ -40,8 +41,11 @@ if __name__ == '__main__':
     hidden_size = 512
     vocab_size = len(dataset.vocab)
     model = CNNtoRNN(2048, embed_size, hidden_size, vocab_size)
+    model.load_state_dict(torch.load("checkpoint.torch")["model_state_dict"])
     if args.overfit:
-        overfit(model, device, data_loader, args.T)
+        #overfit(model, device, data_loader, args.T)
+        validate_model(model, data_loader)
+
     else:
         train(args.T, model, data_loader, device, args.progress)
     

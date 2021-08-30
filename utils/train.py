@@ -92,12 +92,13 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                     )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
                     print(demo_cap)
                     # show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
-                    model.train()
+                    model.train
     
     return model
 
 
 def overfit(model, device, data_loader, T=250):
+
     """
     Run a training on one image+caption
     Args:
@@ -169,3 +170,13 @@ def overfit(model, device, data_loader, T=250):
     #show_image(show_img[0], title=demo_cap,
     #           transform=False, f_name="Original.png")
     print(demo_cap)
+
+def validate_model(model, data_loader):
+    model.eval()
+    for i in range(10):
+        itearator = iter(data_loader)
+        img, caption, _ = next(itearator)
+        prediction = model.caption_images(img[0:1], vocab=data_loader.dataset.vocab, max_len=25)
+        print(f"\niteration: {i}")
+        print(f"Prediction:{' '.join(prediction)}")
+        print(f"Original: {caption[0]}") 
