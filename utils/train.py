@@ -41,6 +41,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
     Returns:
         [type]: Trained model
     """
+    print(f"Using {device}")
     # Hyperparameters
     learning_rate = 3e-4
     # init model
@@ -107,6 +108,7 @@ def overfit(model, device, data_loader, T=250):
         data_loader ([type]): Dataloader
         T (int, optional): How many iterations to run training for. Defaults to 250.
     """
+    print(f"Using {device}")
     tqdm_bar = partial(tqdm, position=0, leave=True)
 
     learning_rate = 3e-4
