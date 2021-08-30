@@ -45,7 +45,7 @@ if __name__ == '__main__':
     if args.overfit:
         #overfit(model, device, data_loader, args.T)
         model.load_state_dict(torch.load("checkpoint.torch")["model_state_dict"])
-        validate_model(model, data_loader)
+        validate_model(model, data_loader, device)
 
     else:
         train(args.T, model, data_loader, device, args.progress)

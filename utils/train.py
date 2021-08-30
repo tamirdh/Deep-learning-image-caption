@@ -171,12 +171,13 @@ def overfit(model, device, data_loader, T=250):
     #           transform=False, f_name="Original.png")
     print(demo_cap)
 
-def validate_model(model, data_loader):
+def validate_model(model, data_loader, device):
+    model = model.to(device)
     model.eval()
     for i in range(10):
         itearator = iter(data_loader)
         img, caption, _ = next(itearator)
-        prediction = model.caption_images(img[0:1], vocab=data_loader.dataset.vocab, max_len=25)
+        prediction = model.caption_images(img[0:1].to(device), vocab=data_loader.dataset.vocab, max_len=25)
         print(f"\niteration: {i}")
         print(f"Prediction:{' '.join(prediction)}")
         print(f"Original: {caption[0]}") 
