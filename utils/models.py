@@ -168,7 +168,6 @@ class DecoderRNNV2(nn.Module):
 class DecoderRNNV3(DecoderRNNV2):
     def __init__(self, embed_size, hidden_size, vocab_size, n_features):
         super().__init__(embed_size, hidden_size, vocab_size, n_features)
-        self.softmax = nn.Softmax(n_features)
 
     def forward(self, features, captions, cap_lengths):
         # cap_lengths - list of the real length of each caption before padding
@@ -192,7 +191,7 @@ class DecoderRNNV3(DecoderRNNV2):
         output_padded, output_lengths = pad_packed_sequence(
             lstm_out, batch_first=True)
 
-        return self.softmax(self.fc_out(output_padded))
+        return self.fc_out(output_padded)
 
     def caption_features(self, features, vocab, vec_len):
         '''
@@ -216,7 +215,7 @@ class DecoderRNNV3(DecoderRNNV2):
                 lstm_out, (hi, ci) = self.lstm(combined)
             else:
                 lstm_out, (hi, ci) = self.lstm(combined, (hi, ci))
-            next_w = torch.argmax(self.softmax(self.fc_out(lstm_out)), dim=2)
+            next_w = torch.argmax(self.fc_out(lstm_out), dim=2)
             output.append(vocab.itos[next_w.item()])
             # lstm_out: (1,1,F)
             # hi, ci: (num_layers, 1, F)
