@@ -216,7 +216,7 @@ class DecoderRNNV3(DecoderRNNV2):
                 lstm_out, (hi, ci) = self.lstm(combined)
             else:
                 lstm_out, (hi, ci) = self.lstm(combined, (hi, ci))
-            next_w = torch.argmax(self.softmax(self.fc_out(lstm_out), dim=2))
+            next_w = torch.argmax(self.softmax(self.fc_out(lstm_out)), dim=2)
             output.append(vocab.itos[next_w.item()])
             # lstm_out: (1,1,F)
             # hi, ci: (num_layers, 1, F)
