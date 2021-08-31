@@ -6,6 +6,11 @@ from PIL import Image
 import pickle
 from .vocab import Vocabulary
 import os
+<<<<<<< HEAD
+=======
+from torch.nn.utils.rnn import pad_sequence
+
+>>>>>>> origin/master
 
 class COCODataset(Dataset):
     """
@@ -107,6 +112,17 @@ def get_transformation():
                                          ])
     return transformation
 
+<<<<<<< HEAD
+=======
+def new_collate(batch):
+    (imgs, targets) = zip(*batch)
+    imgs = [x.unsqueeze(0) for x in imgs]
+    imgs = torch.cat(imgs,dim=0)
+    targets_lens = [len(target) for target in targets]
+    targets_pad = pad_sequence(targets, batch_first=True, padding_value=0)
+
+    return imgs, targets_pad, targets_lens
+>>>>>>> origin/master
 
 def get_dataset(img_dir, annot_json, threshold=5, load_vocab=False):
     """
@@ -148,6 +164,10 @@ def get_dataloader(dataset: COCODataset, batch_size: int = 4, workers: int= 1, s
         batch_size=batch_size,
         num_workers=workers,
         shuffle=shuffle,
+<<<<<<< HEAD
         collate_fn=CapsCollate(pad_idx=pad_idx, vec_len=vec_len)
+=======
+        collate_fn=new_collate
+>>>>>>> origin/master
     )
     return data_loader

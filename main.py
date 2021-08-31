@@ -28,18 +28,32 @@ def init_args():
 
 if __name__ == '__main__':
     args = init_args()
+<<<<<<< HEAD
     shuffle = not args.overfit
+=======
+    print(args)
+    shuffle = not args.overfit
+    print(f"Shuffling dataset:{shuffle}")
+>>>>>>> origin/master
     device = get_device(1)
     dataset = get_dataset(args.data, args.annot,
                           args.v_thresh, args.load_vocab)
     data_loader = get_dataloader(dataset, args.batch, shuffle=shuffle)
     embed_size = 512
+<<<<<<< HEAD
     hidden_size = 1024
+=======
+    hidden_size = 2048
+>>>>>>> origin/master
     vocab_size = len(dataset.vocab)
     model = CNNtoRNN(2048, embed_size, hidden_size, vocab_size)
     if args.overfit:
         overfit(model, device, data_loader, args.T)
     else:
         train(args.T, model, data_loader, device)
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/master
     del model
