@@ -439,7 +439,7 @@ class DecoderRNNV5(nn.Module):
         # w_embed: (1) -> (1,1,E)
         result_caption = []
         with torch.no_grad():
-            x = self.features_to_embed(features)
+            x = self.features_to_embed(features).unsqueeze(0)
             states = None
 
             for _ in range(max_length):
