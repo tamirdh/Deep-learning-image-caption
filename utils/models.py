@@ -326,14 +326,79 @@ class DecoderRNNEGreed(DecoderRNNV2):
             w_embed = self.embed(next_w)
         return output
 
+class DecoderRNNV4(nn.Module):
+    def __init__(self, embed_size, hidden_size, vocab_size):
+        super(DecoderRNNV4, self).__init__()
+        self.hidden_size = hidden_size
+        self.embed_size = embed_size
+        self.vocab_size = vocab_size
+        self.num_layers = 3
+        self.embed = nn.Embedding(vocab_size, embed_size)
+        self.lstm = nn.LSTM(input_size=embed_size, hidden_size=hidden_size, num_layers=3, batch_first=True)
+        self.fc_out = nn.Linear(in_features=hidden_size, out_features=vocab_size)
+
+    def forward(self, features, captions, cap_lengths):
+        # cap_lengths - list of the real length of each caption before padding
+        assert features.size(0) == captions.size(0)
+        
+        # embed captions, shape (B, L, E)
+        captions_embed = self.embed(captions)
+        # features, shape (B, E)
+        # features transform shape to (B, L, E)
+        features = torch.unsqueeze(features, dim=1)  # (1,256) -> (1,1,256)
+        
+        # (1,1,256) -> (1,77, 256)
+        # features = features.repeat((1, captions_embed.size(1), 1))
+        # print("features size 2:", features.size())
+        # combine features + captions to shape (B, 1+L, E) (1,1,256) -> (1,14,256)
+        combined = torch.cat((features, captions_embed), dim=1)
+        
+        # create packedSequence that is better for LSTM
+        packed = pack_padded_sequence(
+            combined, cap_lengths, batch_first=True, enforce_sorted=False)
+        # run through the LSTM network and get output of shape (B, L, H)
+        lstm_out, _ = self.lstm(packed)
+        # unpack so we can use Linear function (works on Tensor not packSeq)
+        output_padded, output_lengths = pad_packed_sequence(
+            lstm_out, batch_first=True)
+
+        return self.fc_out(output_padded)
+
+    def caption_features(self, features, vocabulary, max_length=77):
+        '''
+        Vec_len should be the same as is learning. 
+        '''
+        assert features.size(
+            0) == 1, "Caption features doesn't support batches"
+        # features: (B,F) -> (1,1,F)
+        # w_embed: (1) -> (1,1,E)
+        result_caption = []
+
+        with torch.no_grad():
+            x = self.encoderCNN(features).unsqueeze(0)
+            states = None
+
+            for _ in range(max_length):
+                hiddens, states = self.decoderRNN.lstm(x, states)
+                output = self.decoderRNN.fc_out(hiddens.squeeze(0))
+                predicted = output.argmax(1)
+                result_caption.append(predicted.item())
+                x = self.decoderRNN.embed(predicted).unsqueeze(0)
+
+                if vocabulary.itos[predicted.item()] == "<EOS>":
+                    break
+
+        return [vocabulary.itos[idx] for idx in result_caption]
+
+
 class CNNtoRNN(nn.Module):
     def __init__(self, features, embed_size, hidden_size, vocab_size, train_CNN=False):
         global device
         device = get_device(1)
         super(CNNtoRNN, self).__init__()
         self.encoderCNN = EncoderCNN(features, train_CNN).to(device)
-        self.decoderRNN = DecoderRNNV3(
-            embed_size, hidden_size, vocab_size, features).to(device)
+        self.decoderRNN = DecoderRNNV4(
+            embed_size, hidden_size, vocab_size).to(device)
 
     def forward(self, images, captions, length):
         features = self.encoderCNN(images)
