@@ -101,7 +101,7 @@ class CapsCollate:
 
 def get_transformation():
     # define a transformation to add some noise and variance to our images
-    transformation = transforms.Compose([transforms.Resize((512, 512), Image.NEAREST),
+    transformation = transforms.Compose([transforms.Resize((299, 299), Image.NEAREST),
                                         transforms.ToTensor(),
                                         transforms.RandomVerticalFlip(),
                                         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[

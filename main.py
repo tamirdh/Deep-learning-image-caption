@@ -38,9 +38,9 @@ if __name__ == '__main__':
                           args.v_thresh, args.load_vocab)
     data_loader = get_dataloader(dataset, args.batch, shuffle=shuffle)
     embed_size = 512
-    hidden_size = 512
+    hidden_size = 1024
     vocab_size = len(dataset.vocab)
-    model = CNNtoRNN(2048, embed_size, hidden_size, vocab_size)
+    model = CNNtoRNN(1024, embed_size, hidden_size, vocab_size)
     
     if args.overfit:
         #overfit(model, device, data_loader, args.T)
