@@ -392,7 +392,7 @@ class DecoderRNNV4(nn.Module):
 
 class DecoderRNNV5(nn.Module):
     def __init__(self, embed_size, hidden_size, vocab_size):
-        super(DecoderRNNV4, self).__init__()
+        super(DecoderRNNV5, self).__init__()
         self.hidden_size = hidden_size
         self.embed_size = embed_size
         self.vocab_size = vocab_size
