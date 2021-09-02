@@ -443,11 +443,11 @@ class DecoderRNNV5(nn.Module):
             states = None
 
             for _ in range(max_length):
-                hiddens, states = self.decoderRNN.lstm(x, states)
-                output = self.decoderRNN.fc_out(hiddens.squeeze(0))
+                hiddens, states = self.lstm(x, states)
+                output = self.fc_out(hiddens.squeeze(0))
                 predicted = output.argmax(1)
                 result_caption.append(predicted.item())
-                x = self.decoderRNN.embed(predicted).unsqueeze(0)
+                x = self.embed(predicted).unsqueeze(0)
 
                 if vocabulary.itos[predicted.item()] == "<EOS>":
                     break
