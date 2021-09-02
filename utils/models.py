@@ -438,9 +438,8 @@ class DecoderRNNV5(nn.Module):
         # features: (B,F) -> (1,1,F)
         # w_embed: (1) -> (1,1,E)
         result_caption = []
-        features = self.features_to_embed(features)
         with torch.no_grad():
-            x = self.encoderCNN(features).unsqueeze(0)
+            x = self.features_to_embed(features)
             states = None
 
             for _ in range(max_length):
