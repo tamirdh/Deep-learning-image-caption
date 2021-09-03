@@ -457,7 +457,7 @@ class CNNtoRNN(nn.Module):
         Vec_len should be the same as is learning. 
         '''
         assert features.size(
-            0) == 1, , f"Caption features doesn't support batches got {features.shape}"
+            0) == 1, f"Caption features doesn't support batches got {features.shape}"
         # features: (B,F) -> (1,1,F)
         # w_embed: (1) -> (1,1,E)
         result_caption = []
