@@ -452,7 +452,7 @@ class CNNtoRNN(nn.Module):
     #     return decoded
 
 
-    def caption_images(self, features, vocab, max_length=77):
+    def caption_images(self, features, vocab, max_len=77):
         '''
         Vec_len should be the same as is learning. 
         '''
@@ -466,7 +466,7 @@ class CNNtoRNN(nn.Module):
             x = self.encoderCNN(features).unsqueeze(0)
             states = None
 
-            for _ in range(max_length):
+            for _ in range(max_len):
                 hiddens, states = self.decoderRNN.lstm(x, states)
                 output = self.decoderRNN.fc_out(hiddens.squeeze(0))
                 predicted = output.argmax(1)
