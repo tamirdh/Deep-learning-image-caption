@@ -141,7 +141,7 @@ def overfit(model, device, data_loader, T=250, img_n = 1):
             print(f"Loss:{loss}")
             print("Predicted:")
             model.eval()
-            demo_cap = model.caption_images(img[index:index+1,:,:].to(
+            demo_cap = model.caption_images(img[0:1].to(
                 device), vocab=data_loader.dataset.vocab, max_len=15)
             demo_cap = ' '.join(demo_cap)
             model.train()
