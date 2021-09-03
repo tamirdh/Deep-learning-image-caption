@@ -98,7 +98,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
     return model
 
 
-def overfit(model, device, data_loader, T=250):
+def overfit(model, device, data_loader, T=250, img_n = 1):
 
     """
     Run a training on one image+caption
@@ -108,6 +108,7 @@ def overfit(model, device, data_loader, T=250):
         data_loader ([type]): Dataloader
         T (int, optional): How many iterations to run training for. Defaults to 250.
     """
+    assert img_n >= 1, "Use a number larger than 1"
     print(f"Using {device}")
     tqdm_bar = partial(tqdm, position=0, leave=True)
 
@@ -122,7 +123,8 @@ def overfit(model, device, data_loader, T=250):
 
 
     dataiter = iter(data_loader)
-    img, caption, length = next(dataiter)
+    for _ in range(0, img_n):
+        img, caption, length = next(dataiter)
     img = img.to(device)
     caption = caption.to(device).long()
     for i in tqdm_bar(range(T)):

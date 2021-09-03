@@ -431,11 +431,11 @@ class DecoderRNNV5(nn.Module):
         return [vocabulary.itos[idx] for idx in result_caption]
 
 class CNNtoRNN(nn.Module):
-    def __init__(self, features, embed_size, hidden_size, vocab_size, train_CNN=False):
+    def __init__(self, embed_size, hidden_size, vocab_size, train_CNN=False):
         global device
         device = get_device(1)
         super(CNNtoRNN, self).__init__()
-        self.encoderCNN = EncoderCNN(features, train_CNN).to(device)
+        self.encoderCNN = EncoderCNN(embed_size, train_CNN).to(device)
         self.decoderRNN = DecoderRNNV4(
             embed_size, hidden_size, vocab_size).to(device)
 
