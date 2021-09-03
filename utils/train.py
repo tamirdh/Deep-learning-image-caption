@@ -128,7 +128,6 @@ def overfit(model, device, data_loader, T=250, img_n = 1):
     img = img.to(device)
     caption = caption.to(device).long()
     for i in tqdm_bar(range(T)):
-        index = random.choice([0,1,2])
         # train on the same image and caption to achieve overfitting
         output = model(img, caption, length).to(device)
         loss = criterion(
