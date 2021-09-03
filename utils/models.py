@@ -452,7 +452,7 @@ class CNNtoRNN(nn.Module):
     #     return decoded
 
 
-    def caption_images(self, features, vocabulary, max_length=77):
+    def caption_images(self, features, vocab, max_length=77):
         '''
         Vec_len should be the same as is learning. 
         '''
@@ -473,7 +473,7 @@ class CNNtoRNN(nn.Module):
                 result_caption.append(predicted.item())
                 x = self.decoderRNN.embed(predicted).unsqueeze(0)
 
-                if vocabulary.itos[predicted.item()] == "<EOS>":
+                if vocab.itos[predicted.item()] == "<EOS>":
                     break
 
-        return [vocabulary.itos[idx] for idx in result_caption]
+        return [vocab.itos[idx] for idx in result_caption]
