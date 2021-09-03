@@ -336,7 +336,7 @@ class DecoderRNNV4(nn.Module):
         self.embed = nn.Embedding(vocab_size, embed_size)
         self.lstm = nn.LSTM(input_size=embed_size, hidden_size=hidden_size, num_layers=3, batch_first=True)
         self.fc_out = nn.Linear(in_features=hidden_size, out_features=vocab_size)
-        self.softmax = nn.Sofmax(vocab_size)
+        self.softmax = nn.Softmax(vocab_size)
 
     def forward(self, features, captions, cap_lengths):
         # cap_lengths - list of the real length of each caption before padding
