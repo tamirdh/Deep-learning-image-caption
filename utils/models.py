@@ -336,7 +336,6 @@ class DecoderRNNV4(nn.Module):
         self.embed = nn.Embedding(vocab_size, embed_size)
         self.lstm = nn.LSTM(input_size=embed_size, hidden_size=hidden_size, num_layers=3, batch_first=True)
         self.fc_out = nn.Linear(in_features=hidden_size, out_features=vocab_size)
-        self.softmax = nn.Softmax(vocab_size)
 
     def forward(self, features, captions, cap_lengths):
         # cap_lengths - list of the real length of each caption before padding
@@ -363,7 +362,7 @@ class DecoderRNNV4(nn.Module):
         output_padded, output_lengths = pad_packed_sequence(
             lstm_out, batch_first=True)
 
-        return self.softmax(self.fc_out(output_padded))
+        return self.fc_out(output_padded)
 
     
 
@@ -469,7 +468,7 @@ class CNNtoRNN(nn.Module):
 
             for _ in range(max_len):
                 hiddens, states = self.decoderRNN.lstm(x, states)
-                output = self.decoderRNN.softmax(self.decoderRNN.fc_out(hiddens.squeeze(0)))
+                output = self.decoderRNN.fc_out(hiddens.squeeze(0))
                 predicted = output.argmax(1)
                 result_caption.append(predicted.item())
                 x = self.decoderRNN.embed(predicted).unsqueeze(0)
