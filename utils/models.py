@@ -364,31 +364,7 @@ class DecoderRNNV4(nn.Module):
 
         return self.fc_out(output_padded)
 
-    def caption_features(self, features, vocabulary, max_length=77):
-        '''
-        Vec_len should be the same as is learning. 
-        '''
-        assert features.size(
-            0) == 1, "Caption features doesn't support batches"
-        # features: (B,F) -> (1,1,F)
-        # w_embed: (1) -> (1,1,E)
-        result_caption = []
-
-        with torch.no_grad():
-            x = self.encoderCNN(features).unsqueeze(0)
-            states = None
-
-            for _ in range(max_length):
-                hiddens, states = self.decoderRNN.lstm(x, states)
-                output = self.decoderRNN.fc_out(hiddens.squeeze(0))
-                predicted = output.argmax(1)
-                result_caption.append(predicted.item())
-                x = self.decoderRNN.embed(predicted).unsqueeze(0)
-
-                if vocabulary.itos[predicted.item()] == "<EOS>":
-                    break
-
-        return [vocabulary.itos[idx] for idx in result_caption]
+    
 
 class DecoderRNNV5(nn.Module):
     def __init__(self, embed_size, hidden_size, vocab_size):
@@ -468,9 +444,36 @@ class CNNtoRNN(nn.Module):
         outputs = self.decoderRNN(features, captions, length)
         return outputs
 
-    def caption_images(self, image, vocab, max_len=50):
-        # Inference part
-        # Given the image features generate the captions
-        features = self.encoderCNN(image)
-        decoded = self.decoderRNN.caption_features(features, vocab, max_len)
-        return decoded
+    # def caption_images(self, image, vocab, max_len=50):
+    #     # Inference part
+    #     # Given the image features generate the captions
+    #     features = self.encoderCNN(image)
+    #     decoded = self.decoderRNN.caption_features(features, vocab, max_len)
+    #     return decoded
+
+
+    def caption_images(self, features, vocabulary, max_length=77):
+        '''
+        Vec_len should be the same as is learning. 
+        '''
+        assert features.size(
+            0) == 1, "Caption features doesn't support batches"
+        # features: (B,F) -> (1,1,F)
+        # w_embed: (1) -> (1,1,E)
+        result_caption = []
+
+        with torch.no_grad():
+            x = self.encoderCNN(features).unsqueeze(0)
+            states = None
+
+            for _ in range(max_length):
+                hiddens, states = self.decoderRNN.lstm(x, states)
+                output = self.decoderRNN.fc_out(hiddens.squeeze(0))
+                predicted = output.argmax(1)
+                result_caption.append(predicted.item())
+                x = self.decoderRNN.embed(predicted).unsqueeze(0)
+
+                if vocabulary.itos[predicted.item()] == "<EOS>":
+                    break
+
+        return [vocabulary.itos[idx] for idx in result_caption]
