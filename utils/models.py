@@ -32,7 +32,7 @@ class EncoderCNN(nn.Module):
         Input: image vector
         Output: features vector
         '''
-        features = self.inception(images)
+        features = self.cnn(images)
         return features
 
 
