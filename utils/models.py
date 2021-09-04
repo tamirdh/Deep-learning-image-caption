@@ -380,7 +380,6 @@ class DecoderRNNV5(nn.Module):
     def forward(self, features, captions, cap_lengths):
         # cap_lengths - list of the real length of each caption before padding
         assert features.size(0) == captions.size(0)
-        features = self.features_to_embed(features)
         # embed captions, shape (B, L, E)
         captions_embed = self.embed(captions)
         # features, shape (B, E)
@@ -414,7 +413,7 @@ class DecoderRNNV5(nn.Module):
         # w_embed: (1) -> (1,1,E)
         result_caption = []
         with torch.no_grad():
-            x = self.features_to_embed(features).unsqueeze(0)
+            x = features.unsqueeze(0)
             states = None
 
             for _ in range(max_length):
