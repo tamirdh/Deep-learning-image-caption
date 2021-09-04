@@ -332,8 +332,8 @@ class DecoderRNNV4(nn.Module):
         self.hidden_size = hidden_size
         self.embed_size = embed_size
         self.vocab_size = vocab_size
-        self.num_layers = 20
-        self.embed = nn.Embedding(vocab_size, embed_size, max_norm=2)
+        self.num_layers = 1
+        self.embed = nn.Embedding(vocab_size, embed_size)
         self.lstm = nn.LSTM(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True)
         self.fc_out = nn.Linear(in_features=hidden_size, out_features=vocab_size)
 
@@ -374,7 +374,7 @@ class DecoderRNNV5(nn.Module):
         self.vocab_size = vocab_size
         self.num_layers = 3
         self.embed = nn.Embedding(vocab_size, embed_size)
-        self.lstm = nn.LSTM(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True, dropout=0.2)
+        self.lstm = nn.GRU(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True, dropout=0.2)
         self.fc_out = nn.Linear(in_features=hidden_size, out_features=vocab_size)
         self.features_to_embed = nn.Linear(in_features=2048, out_features=embed_size)
 
@@ -436,7 +436,7 @@ class CNNtoRNN(nn.Module):
         device = get_device(1)
         super(CNNtoRNN, self).__init__()
         self.encoderCNN = EncoderCNN(embed_size, train_CNN).to(device)
-        self.decoderRNN = DecoderRNNV4(
+        self.decoderRNN = DecoderRNNV5(
             embed_size, hidden_size, vocab_size).to(device)
 
     def forward(self, images, captions, length):
