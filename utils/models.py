@@ -22,11 +22,10 @@ class EncoderCNN(nn.Module):
     def __init__(self, output_size, train_CNN=False):
         super(EncoderCNN, self).__init__()
         self.train_CNN = train_CNN
-        self.inception = models.inception_v3(
-            pretrained=not self.train_CNN, aux_logits=False)
-        self.inception.fc = nn.Linear(
-            self.inception.fc.in_features, output_size)
-        self.relu = nn.ReLU()
+        self.cnn = models.resnet152(
+            pretrained=not self.train_CNN)
+        self.cnn.fc = nn.Linear(
+            self.cnn.fc.in_features, output_size)
 
     def forward(self, images):
         '''
@@ -34,8 +33,7 @@ class EncoderCNN(nn.Module):
         Output: features vector
         '''
         features = self.inception(images)
-        output = self.relu(features)
-        return output
+        return features
 
 
 class DecoderRNN(nn.Module):
