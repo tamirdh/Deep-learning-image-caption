@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import torch
 from functools import partial
 from tqdm import tqdm
-import random
+from torch.optim import lr_scheduler
 import sys
 def show_image(img, title=None, transform=True, f_name=""):
     """Imshow for Tensor."""
@@ -44,10 +44,12 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
     print(f"Using {device}")
     # Hyperparameters
     learning_rate = 1e-4
+    
     # init model
     model = model.to(device)
     criterion = CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
     model.train()
 
     # start epochs
@@ -67,7 +69,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
             if idx > 0 and idx % progress == 0:
                 with torch.no_grad():
                     model.eval()
-                    torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
+                    #torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
                                 
                     dataiter = iter(data_loader)
                     img_show, cap, cap_len = next(dataiter)
@@ -94,7 +96,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                     print(demo_cap)
                     # show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
                     model.train()
-    
+        scheduler.step()
     return model
 
 
