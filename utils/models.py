@@ -332,7 +332,7 @@ class DecoderRNNV4(nn.Module):
         self.hidden_size = hidden_size
         self.embed_size = embed_size
         self.vocab_size = vocab_size
-        self.num_layers = 1
+        self.num_layers = 80
         self.embed = nn.Embedding(vocab_size, embed_size, max_norm=2)
         self.lstm = nn.LSTM(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True)
         self.fc_out = nn.Linear(in_features=hidden_size, out_features=vocab_size)
