@@ -39,7 +39,7 @@ if __name__ == '__main__':
     data_loader = get_dataloader(dataset, args.batch, shuffle=shuffle)
     vocab_size = len(dataset.vocab)
     embed_size = vocab_size//2
-    hidden_size = vocab_size//3
+    hidden_size = 100
     print(f"Embed size:{embed_size}\nHidden size:{hidden_size}")
     model = CNNtoRNN(embed_size, hidden_size, vocab_size)
     
