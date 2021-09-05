@@ -73,34 +73,37 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
             loss.backward()
             optimizer.step()
             if idx > 0 and idx % progress == 0:
-                with torch.no_grad():
-                    model.eval()
+                model.eval()
+                
+                    
                     #torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
-                    loss_over_time.append(loss.item())
-                    with open("LOSS.data", "wb") as dest:
-                        pickle.dump(loss_over_time, dest)
+                loss_over_time.append(loss.item())
+                with open("LOSS.data", "wb") as dest:
+                    pickle.dump(loss_over_time, dest)
+                with torch.no_grad():
                     output = model(img.to(device), captions.to(device).long(), length).to(device)
-                    print(f"\n\nLoss {loss.item():.5f}\n")
-                    print(f"\nForward\n")
-                    out_cap = torch.argmax(output[0], dim=1)
-                    demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
-                    )] for idx2 in out_cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-                    #show_image(img[0], title=demo_cap, f_name=None)
-                    print(demo_cap)
+                print(f"\n\nLoss {loss.item():.5f}\n")
+                print(f"\nForward\n")
+                out_cap = torch.argmax(output[0], dim=1)
+                demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
+                )] for idx2 in out_cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
+                #show_image(img[0], title=demo_cap, f_name=None)
+                print(demo_cap)
+                with torch.no_grad():
                     demo_cap = model.caption_images(img[0:1].to(
                         device), vocab=data_loader.dataset.vocab, max_len=30)
-                    demo_cap = ' '.join(demo_cap)
-                    print("Predicted")
-                    print(demo_cap)
-                    # show_image(img_show[0], title=demo_cap, f_name="Predicted.png")
-                    print("Original")
-                    cap = captions[0]
-                    # print(cap.long())
-                    demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
-                    )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-                    print(demo_cap)
-                    # show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
-                    model.train()
+                demo_cap = ' '.join(demo_cap)
+                print("Predicted")
+                print(demo_cap)
+                # show_image(img_show[0], title=demo_cap, f_name="Predicted.png")
+                print("Original")
+                cap = captions[0]
+                # print(cap.long())
+                demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
+                )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
+                print(demo_cap)
+                # show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
+                model.train()
         scheduler.step()
     return model
 
