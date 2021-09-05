@@ -23,8 +23,11 @@ def show_image(img, title=None, transform=True, f_name=""):
     # title = title.replace("<SOS>","").replace("<EOS>", "")
     if title is not None:
         plt.title(title)
-    plt.imsave(f'{f_name.replace(".png", "")}_{title}.png', img)
-    print(f'Saved {f_name} with caption {plt.title}')
+    if f_name is not None:
+        plt.imsave(f'{f_name.replace(".png", "")}_{title}.png', img)
+        print(f'Saved {f_name} with caption {plt.title}')
+    else:
+        plt.imshow(img)
     plt.pause(0.001)  # pause a bit so that plots are updated
 
 
@@ -64,32 +67,29 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
             loss = criterion(
                 output.reshape(-1, output.shape[2]), captions.reshape(-1))
             optimizer.zero_grad()
-            loss.backward(loss)
+            loss.backward()
             optimizer.step()
             if idx > 0 and idx % progress == 0:
                 with torch.no_grad():
                     model.eval()
                     #torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
                                 
-                    dataiter = iter(data_loader)
-                    img_show, cap, cap_len = next(dataiter)
-                    output = model(img_show.to(device),
-                                cap.to(device).long(), cap_len).to(device)
+                    output = model(img.to(device), captions.to(device).long(), length).to(device)
                     print(f"\n\nLoss {loss.item():.5f}\n")
                     print(f"\nForward\n")
                     out_cap = torch.argmax(output[0], dim=1)
                     demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
                     )] for idx2 in out_cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
-                    # show_image(show_img[0], title=demo_cap, f_name="Forward.png")
+                    #show_image(img[0], title=demo_cap, f_name=None)
                     print(demo_cap)
-                    demo_cap = model.caption_images(img_show[0:1].to(
+                    demo_cap = model.caption_images(img[0:1].to(
                         device), vocab=data_loader.dataset.vocab, max_len=30)
                     demo_cap = ' '.join(demo_cap)
                     print("Predicted")
                     print(demo_cap)
                     # show_image(img_show[0], title=demo_cap, f_name="Predicted.png")
                     print("Original")
-                    cap = cap[0]
+                    cap = captions[0]
                     # print(cap.long())
                     demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
                     )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
@@ -135,7 +135,7 @@ def overfit(model, device, data_loader, T=250, img_n = 1):
         loss = criterion(
             output.reshape(-1, output.shape[2]), caption.reshape(-1))
         optimizer.zero_grad()
-        loss.backward(loss)
+        loss.backward()
         optimizer.step()
         with torch.no_grad():
             print(f"\niteration: {i}")
