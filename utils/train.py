@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import torch
 from functools import partial
 from tqdm import tqdm
-from torch.optim import lr_scheduler
 import sys
 def show_image(img, title=None, transform=True, f_name=""):
     """Imshow for Tensor."""
@@ -53,9 +52,8 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
     
     # init model
     model = model.to(device)
-    criterion = CrossEntropyLoss()
+    criterion = CrossEntropyLoss().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
     model.train()
 
     # start epochs
@@ -104,7 +102,6 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                 # show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
                 sys.stdout.flush()
                 model.train()
-        scheduler.step()
     return model
 
 
@@ -127,7 +124,7 @@ def overfit(model, device, data_loader, T=250, img_n = 1):
 
     # init model
     model = model.to(device)
-    criterion = CrossEntropyLoss()
+    criterion = CrossEntropyLoss().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     model.train()
 
@@ -138,11 +135,11 @@ def overfit(model, device, data_loader, T=250, img_n = 1):
     img = img.to(device)
     caption = caption.to(device).long()
     for i in tqdm_bar(range(T)):
+        optimizer.zero_grad()
         # train on the same image and caption to achieve overfitting
         output = model(img, caption, length).to(device)
         loss = criterion(
             output.reshape(-1, output.shape[2]), caption.reshape(-1))
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         with torch.no_grad():
