@@ -38,8 +38,8 @@ if __name__ == '__main__':
                           args.v_thresh, args.load_vocab)
     data_loader = get_dataloader(dataset, args.batch, shuffle=shuffle)
     vocab_size = len(dataset.vocab)
-    embed_size = vocab_size//2
-    hidden_size = vocab_size//5
+    embed_size = 512
+    hidden_size = 1024
     print(f"Embed size:{embed_size}\nHidden size:{hidden_size}")
     model = CNNtoRNN(embed_size, hidden_size, vocab_size)
     print(model)
@@ -49,6 +49,6 @@ if __name__ == '__main__':
         #validate_model(model, data_loader, device)
 
     else:
-        train(args.T, model, data_loader, device, args.progress)
+        train(args.T, model.train(), data_loader, device, args.progress)
     
     del model
