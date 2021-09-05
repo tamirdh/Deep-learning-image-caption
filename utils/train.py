@@ -1,3 +1,4 @@
+import pickle
 import torch.optim as optim
 from tqdm import tqdm
 from torch.nn import CrossEntropyLoss
@@ -45,6 +46,8 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
         [type]: Trained model
     """
     print(f"Using {device}")
+    # Monitor
+    loss_over_time = list()
     # Hyperparameters
     learning_rate = 1e-4
     
@@ -73,7 +76,9 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                 with torch.no_grad():
                     model.eval()
                     #torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
-                                
+                    loss_over_time.append(loss.item())
+                    with open("LOSS.data", "wb") as dest:
+                        pickle.dump(loss_over_time, dest)
                     output = model(img.to(device), captions.to(device).long(), length).to(device)
                     print(f"\n\nLoss {loss.item():.5f}\n")
                     print(f"\nForward\n")
