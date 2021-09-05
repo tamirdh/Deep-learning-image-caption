@@ -22,7 +22,7 @@ class EncoderCNN(nn.Module):
     def __init__(self, output_size, train_CNN=False):
         super(EncoderCNN, self).__init__()
         self.train_CNN = train_CNN
-        self.cnn = models.resnet152(
+        self.cnn = models.resnet50(
             pretrained=not self.train_CNN)
         self.cnn.fc = nn.Linear(
             self.cnn.fc.in_features, output_size)
@@ -370,7 +370,7 @@ class DecoderRNNV5(nn.Module):
         self.hidden_size = hidden_size
         self.embed_size = embed_size
         self.vocab_size = vocab_size
-        self.num_layers = 1
+        self.num_layers = 3
         self.embed = nn.Embedding(vocab_size, embed_size)
         self.lstm = nn.GRU(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True, dropout=0.2)
         self.fc_out = nn.Linear(in_features=hidden_size, out_features=vocab_size)
