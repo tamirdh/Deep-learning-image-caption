@@ -473,3 +473,8 @@ class CNNtoRNN(nn.Module):
                     break
 
         return [vocab.itos[idx] for idx in result_caption]
+    
+    def train(self):
+        super().train()
+        if not self.encoderCNN.train_CNN:
+            self.encoderCNN.eval()
