@@ -74,9 +74,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
             optimizer.step()
             if idx > 0 and idx % progress == 0:
                 model.eval()
-                
-                    
-                    #torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
+                #torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
                 loss_over_time.append(loss.item())
                 with open("LOSS.data", "wb") as dest:
                     pickle.dump(loss_over_time, dest)
@@ -103,6 +101,8 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                 )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
                 print(demo_cap)
                 # show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
+                print("Returning to train", file=sys.stderr)
+                sys.stdout.flush()
                 model.train()
         scheduler.step()
     return model
