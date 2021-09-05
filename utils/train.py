@@ -63,13 +63,14 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
         print(f"Epoch:{epoch}", file=sys.stderr)
         for idx, (img, captions, length) in tqdm(
             enumerate(data_loader), total=len(data_loader), leave=False
-        ):
+        ):  
+            optimizer.zero_grad()
             img = img.to(device)
             captions = captions.to(device).long()
             output = model(img, captions, length).to(device)
             loss = criterion(
                 output.reshape(-1, output.shape[2]), captions.reshape(-1))
-            optimizer.zero_grad()
+            
             loss.backward()
             optimizer.step()
             if idx > 0 and idx % progress == 0:
@@ -101,7 +102,6 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                 )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
                 print(demo_cap)
                 # show_image(img_show[0], title=demo_cap, transform=False, f_name="Original.png")
-                print("Returning to train", file=sys.stderr)
                 sys.stdout.flush()
                 model.train()
         scheduler.step()
