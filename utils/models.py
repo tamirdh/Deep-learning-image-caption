@@ -68,13 +68,11 @@ class DecoderRNNV4(nn.Module):
         combined = torch.cat((features, captions_embed), dim=1)
         
         # create packedSequence that is better for LSTM
-        packed = pack_padded_sequence(
-            combined, cap_lengths, batch_first=True, enforce_sorted=False)
+        packed = pack_padded_sequence(combined, cap_lengths, batch_first=True, enforce_sorted=False)
         # run through the LSTM network and get output of shape (B, L, H)
         lstm_out, _ = self.lstm(packed)
         # unpack so we can use Linear function (works on Tensor not packSeq)
-        output_padded, output_lengths = pad_packed_sequence(
-            lstm_out, batch_first=True)
+        output_padded, output_lengths = pad_packed_sequence(lstm_out, batch_first=True)
 
         return self.fc_out(output_padded)
 
@@ -83,12 +81,11 @@ class DecoderRNNV4(nn.Module):
 
 class CNNtoRNN(nn.Module):
     def __init__(self, embed_size, hidden_size, vocab_size, train_CNN=False):
-        global device
-        device = get_device(1)
+        # global device
+        # device = get_device(1)
         super(CNNtoRNN, self).__init__()
-        self.encoderCNN = EncoderCNN(embed_size, train_CNN).to(device)
-        self.decoderRNN = DecoderRNNV4(
-            embed_size, hidden_size, vocab_size).to(device)
+        self.encoderCNN = EncoderCNN(embed_size, train_CNN)
+        self.decoderRNN = DecoderRNNV4(embed_size, hidden_size, vocab_size)
 
     def forward(self, images, captions, length):
         features = self.encoderCNN(images)
