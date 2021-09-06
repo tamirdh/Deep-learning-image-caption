@@ -32,7 +32,6 @@ if __name__ == '__main__':
     print(args)
     shuffle = not args.overfit
     print(f"Shuffling dataset:{shuffle}")
-    sys.stdout.flush()
     device = get_device(1)
     dataset = get_dataset(args.data, args.annot,
                           args.v_thresh, args.load_vocab)
