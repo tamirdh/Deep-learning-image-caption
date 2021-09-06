@@ -23,7 +23,7 @@ def init_args():
                         help="Use a previously created vocabulary file")
     parser.add_argument("--batch", type=int, default=4,
                         help="Batch size for dataloader")
-    parser.add_argument("T", type=int, help="Number of epochs to run")
+    parser.add_argument("--T", type=int, help="Number of epochs to run")
     return parser.parse_args()
 
 
