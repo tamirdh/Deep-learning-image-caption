@@ -467,12 +467,15 @@ class CNNtoRNN(nn.Module):
             states = None
             x = self.decoderRNN.fc_in(x)
             x = torch.cat((x, self.decoderRNN.embed(start)), dim=1)
-            for _ in range(max_len):
+            for i in range(max_len):
                 hiddens, states = self.decoderRNN.lstm(x, states)
                 output = self.decoderRNN.fc_out(hiddens.squeeze(0))
                 predicted = output.argmax(1)
-                result_caption.extend([i.item() for i in predicted])
-                x = self.decoderRNN.embed(predicted).unsqueeze(0)
+                if i ==0:
+                    result_caption.extend([i.item() for i in predicted])
+                else:
+                    result_caption.append(predicted.item())
+                x = self.decoderRNN.embed(predicted[-1]).unsqueeze(0).unsqueeze(0)
 
                 if any([vocab.itos[i] == "<EOS>" for i in result_caption]):
                     break
