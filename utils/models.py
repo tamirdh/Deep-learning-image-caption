@@ -375,7 +375,6 @@ class DecoderRNNV5(nn.Module):
         self.lstm = nn.GRU(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True)
         self.fc_out = nn.Linear(in_features=hidden_size, out_features=vocab_size)
         self.fc_in = nn.Linear(in_features=15*embed_size, out_features=embed_size)
-        self.softmax = nn.Softmax(dim=2)
 
     def forward(self, features, captions, cap_lengths):
         # cap_lengths - list of the real length of each caption before padding
@@ -402,7 +401,7 @@ class DecoderRNNV5(nn.Module):
         output_padded, output_lengths = pad_packed_sequence(
             lstm_out, batch_first=True)
 
-        return self.softmax(self.fc_out(output_padded))
+        return self.fc_out(output_padded)
 
     def caption_features(self, features, vocabulary, max_length=77):
         '''
@@ -420,7 +419,7 @@ class DecoderRNNV5(nn.Module):
 
             for _ in range(max_length):
                 hiddens, states = self.lstm(x, states)
-                output = self.softmax(self.fc_out(hiddens.squeeze(0)))
+                output = self.fc_out(hiddens.squeeze(0))
                 predicted = output.argmax(1)
                 result_caption.append(predicted.item())
                 x = self.embed(predicted).unsqueeze(0)
