@@ -4,14 +4,15 @@ from utils.dataset import get_dataloader, get_dataset
 from utils.train import overfit, train
 import argparse
 import os
+import sys
 
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 
 def init_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "data", type=str, help="Full path to the directory containing the images")
+    parser.add_argument("data", type=str, 
+                        help="Full path to the directory containing the images")
     parser.add_argument("annot", type=str,
                         help="Full path to annotations JSON file")
     parser.add_argument("--v_thresh", type=int, default=5,
@@ -31,6 +32,7 @@ if __name__ == '__main__':
     print(args)
     shuffle = not args.overfit
     print(f"Shuffling dataset:{shuffle}")
+    sys.stdout.flush()
     device = get_device(1)
     dataset = get_dataset(args.data, args.annot,
                           args.v_thresh, args.load_vocab)
