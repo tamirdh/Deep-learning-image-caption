@@ -461,7 +461,7 @@ class CNNtoRNN(nn.Module):
         # w_embed: (1) -> (1,1,E)
         result_caption = []
         start = vocab.stoi["<SOS>"]
-        start = torch.tensor(start).unsqueeze(0).unsqueeze(0)
+        start = torch.tensor(start).unsqueeze(0).unsqueeze(0).to(device)
         with torch.no_grad():
             x = self.encoderCNN(features).unsqueeze(0)
             states = None
