@@ -62,6 +62,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
         for idx, (img, captions, length) in tqdm(
             enumerate(data_loader), total=len(data_loader), leave=False
         ):  
+            
             optimizer.zero_grad()
             img = img.to(device)
             captions = captions.to(device).long()
