@@ -65,7 +65,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=2500):
             optimizer.zero_grad()
             img = img.to(device)
             captions = captions.to(device).long()
-            output = model(img, captions, length)
+            output = model(img, captions, length).to(device)
             loss = criterion(output.reshape(-1, output.shape[2]), captions.reshape(-1))
             
             loss.backward()
