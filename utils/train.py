@@ -142,16 +142,17 @@ def overfit(model, device, data_loader, T=250, img_n = 1):
             output.reshape(-1, output.shape[2]), caption.reshape(-1))
         loss.backward()
         optimizer.step()
+        
+        print(f"\niteration: {i}")
+        print(f"Loss:{loss}")
+        print("Predicted:")
+        model.eval()
         with torch.no_grad():
-            print(f"\niteration: {i}")
-            print(f"Loss:{loss}")
-            print("Predicted:")
-            model.eval()
             demo_cap = model.caption_images(img[0:1].to(
                 device), vocab=data_loader.dataset.vocab, max_len=15)
-            demo_cap = ' '.join(demo_cap)
-            model.train()
-            print(demo_cap)
+        demo_cap = ' '.join(demo_cap)
+        model.train()
+        print(demo_cap)
                 
 
     output = model(img, caption, length).to(device)

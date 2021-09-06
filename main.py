@@ -39,12 +39,12 @@ if __name__ == '__main__':
     data_loader = get_dataloader(dataset, args.batch, shuffle=shuffle)
     vocab_size = len(dataset.vocab)
     embed_size = 512
-    hidden_size = 1024
+    hidden_size = 2096
     print(f"Embed size:{embed_size}\nHidden size:{hidden_size}")
     model = CNNtoRNN(embed_size, hidden_size, vocab_size)
     print(model)
     if args.overfit:
-        overfit(model, device, data_loader, args.T)
+        overfit(model, device, data_loader, args.T, 2)
         #model.load_state_dict(torch.load("checkpoint.torch")["model_state_dict"])
         #validate_model(model, data_loader, device)
 

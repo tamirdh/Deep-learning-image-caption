@@ -26,14 +26,14 @@ class EncoderCNN(nn.Module):
             pretrained=not self.train_CNN)
         self.cnn.fc = nn.Linear(
             self.cnn.fc.in_features, output_size)
-
+        self.softmax = nn.Softmax(dim=1)
     def forward(self, images):
         '''
         Input: image vector
         Output: features vector
         '''
         features = self.cnn(images)
-        return features
+        return self.softmax(features)
 
 
 class DecoderRNN(nn.Module):
@@ -370,14 +370,17 @@ class DecoderRNNV5(nn.Module):
         self.hidden_size = hidden_size
         self.embed_size = embed_size
         self.vocab_size = vocab_size
-        self.num_layers = 3
+        self.num_layers = 1
         self.embed = nn.Embedding(vocab_size, embed_size)
-        self.lstm = nn.GRU(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True, dropout=0.2)
+        self.lstm = nn.GRU(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True)
         self.fc_out = nn.Linear(in_features=hidden_size, out_features=vocab_size)
+        self.fc_in = nn.Linear(in_features=15*embed_size, out_features=embed_size)
+        self.softmax = nn.Softmax(dim=2)
 
     def forward(self, features, captions, cap_lengths):
         # cap_lengths - list of the real length of each caption before padding
         assert features.size(0) == captions.size(0)
+        features = self.fc_in(features)
         # embed captions, shape (B, L, E)
         captions_embed = self.embed(captions)
         # features, shape (B, E)
@@ -399,7 +402,7 @@ class DecoderRNNV5(nn.Module):
         output_padded, output_lengths = pad_packed_sequence(
             lstm_out, batch_first=True)
 
-        return self.fc_out(output_padded)
+        return self.softmax(self.fc_out(output_padded))
 
     def caption_features(self, features, vocabulary, max_length=77):
         '''
@@ -409,6 +412,7 @@ class DecoderRNNV5(nn.Module):
             0) == 1, f"Caption features doesn't support batches got {features.shape}"
         # features: (B,F) -> (1,1,F)
         # w_embed: (1) -> (1,1,E)
+        features = self.fc_in(features)
         result_caption = []
         with torch.no_grad():
             x = features.unsqueeze(0)
@@ -416,7 +420,7 @@ class DecoderRNNV5(nn.Module):
 
             for _ in range(max_length):
                 hiddens, states = self.lstm(x, states)
-                output = self.fc_out(hiddens.squeeze(0))
+                output = self.softmax(self.fc_out(hiddens.squeeze(0)))
                 predicted = output.argmax(1)
                 result_caption.append(predicted.item())
                 x = self.embed(predicted).unsqueeze(0)
@@ -431,8 +435,8 @@ class CNNtoRNN(nn.Module):
         global device
         device = get_device(1)
         super(CNNtoRNN, self).__init__()
-        self.encoderCNN = EncoderCNN(embed_size, train_CNN).to(device)
-        self.decoderRNN = DecoderRNNV4(
+        self.encoderCNN = EncoderCNN(15*embed_size, train_CNN).to(device)
+        self.decoderRNN = DecoderRNNV5(
             embed_size, hidden_size, vocab_size).to(device)
 
     def forward(self, images, captions, length):
@@ -457,11 +461,11 @@ class CNNtoRNN(nn.Module):
         # features: (B,F) -> (1,1,F)
         # w_embed: (1) -> (1,1,E)
         result_caption = []
-
+        
         with torch.no_grad():
             x = self.encoderCNN(features).unsqueeze(0)
             states = None
-
+            x = self.decoderRNN.fc_in(x)
             for _ in range(max_len):
                 hiddens, states = self.decoderRNN.lstm(x, states)
                 output = self.decoderRNN.fc_out(hiddens.squeeze(0))
