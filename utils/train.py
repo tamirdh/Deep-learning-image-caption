@@ -1,4 +1,4 @@
-mport pickle
+import pickle
 import torch.optim as optim
 from tqdm import tqdm
 from torch.nn import CrossEntropyLoss
@@ -33,7 +33,7 @@ def show_image(img, title=None, transform=True, f_name=""):
     plt.pause(0.001)  # pause a bit so that plots are updated
 
 
-def train(max_epochs: int, model, data_loader, device: str, progress=250):
+def train(max_epochs: int, model, data_loader, device: str, progress=2500):
     """
     Train a given model
     Args:
@@ -60,16 +60,13 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
     # start epochs
     for epoch in range(max_epochs):
         print(f"Epoch:{epoch}", file=sys.stderr)
-        for idx, (img, captions, length) in tqdm(
-            enumerate(data_loader), total=len(data_loader), leave=False
-        ):  
+        for idx, (img, captions, length) in tqdm(enumerate(data_loader), total=len(data_loader), leave=False):  
             
             optimizer.zero_grad()
             img = img.to(device)
             captions = captions.to(device).long()
-            output = model(img, captions, length).to(device)
-            loss = criterion(
-                output.reshape(-1, output.shape[2]), captions.reshape(-1))
+            output = model(img, captions, length)
+            loss = criterion(output.reshape(-1, output.shape[2]), captions.reshape(-1))
             
             loss.backward()
             optimizer.step()
