@@ -101,7 +101,7 @@ class CapsCollate:
 
 def get_transformation():
     # define a transformation to add some noise and variance to our images
-    transformation = transforms.Compose([transforms.Resize((512, 512), Image.NEAREST),
+    transformation = transforms.Compose([transforms.Resize((299, 299), Image.NEAREST),
                                         transforms.ToTensor(),
                                         transforms.RandomVerticalFlip(),
                                         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
@@ -121,13 +121,11 @@ def new_collate(batch):
 def get_dataset(img_dir, annot_json, threshold=5, load_vocab=False):
     """
     Return a COCODataset object initialised to relevant images and captions
-
     Args:
         img_dir (str): Images directory path 
         annot_json ([type]): location of annotation.json file
         threshold (int, optional): Minimal number of appearances for a word to be included in the vocabulary. Defaults to 5.
         load_vocab (bool, optional): Load a pre-built vocab.pkl. Defaults to False.
-
     Returns:
         COCODataset: Used in dataloader to pass images and captions for training
     """
@@ -143,7 +141,6 @@ def get_dataset(img_dir, annot_json, threshold=5, load_vocab=False):
 def get_dataloader(dataset: COCODataset, batch_size: int = 4, workers: int= 1, shuffle: bool=False, vec_len:int = 75):
     """
     Returns a PyTorch dataloader using our custom dataset
-
     Args:
         dataset (COCODataset): Dataset created using COCO
         batch_size (int, optional): Number of images+captions per batch
