@@ -52,8 +52,6 @@ class COCODataset(Dataset):
                 pickle.dump(self.vocab, dest)
 
         print(f"Using {len(self.vocab)} words")
-        self.imgs = self.imgs[0:20]
-        self.captions = self.captions[0:20]
 
     def __len__(self):
         return len(self.imgs)
