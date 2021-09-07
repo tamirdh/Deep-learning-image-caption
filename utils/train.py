@@ -80,6 +80,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                     pickle.dump(loss_over_time, dest)
                 with torch.no_grad():
                     output = model(img.to(device), captions.to(device).long(), length).to(device)
+                print(f"epoch {epoch}")
                 print(f"\n\nLoss {loss.item():.5f}\n")
                 print(f"\nForward\n")
                 out_cap = torch.argmax(output[0], dim=1)
