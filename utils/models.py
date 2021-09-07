@@ -382,7 +382,7 @@ class DecoderRNNV4(nn.Module):
 
         return self.fc_out(output_padded)
 
-    def sample(self, features, vocab, max_len=77, states=None):
+    def sample(self, features, vocabulary, max_len=77, states=None):
         """Generate captions for given image features using greedy search."""
         sampled_ids = []
         inputs = features.unsqueeze(1)
@@ -393,8 +393,12 @@ class DecoderRNNV4(nn.Module):
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
             inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
-        sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
-        return sampled_ids
+            if any([vocabulary.itos[i] == "<EOS>" for i in sampled_ids]):
+                break
+
+        # sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
+        
+        return [vocabulary.itos[idx] for idx in sampled_ids]
 
 
 
