@@ -372,7 +372,7 @@ class DecoderRNNV5(nn.Module):
         self.vocab_size = vocab_size
         self.num_layers = 1
         self.embed = nn.Embedding(vocab_size, embed_size)
-        self.lstm = nn.GRU(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True, bidirectional=True)
+        self.lstm = nn.GRU(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True, bidirectional=False)
         self.fc_out = nn.Linear(in_features=2*hidden_size, out_features=vocab_size)
         self.fc_in = nn.Linear(in_features=15*embed_size, out_features=embed_size)
 
