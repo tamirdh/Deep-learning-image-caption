@@ -74,15 +74,15 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
             optimizer.step()
             if idx > 0 and idx % progress == 0:
                 model.eval()
-                #torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
+                torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
                 loss_over_time.append(loss.item())
                 with open("LOSS.data", "wb") as dest:
                     pickle.dump(loss_over_time, dest)
                 with torch.no_grad():
                     output = model(img.to(device), captions.to(device).long(), length).to(device)
-                print(f"epoch {epoch}")
-                print(f"\n\nLoss {loss.item():.5f}\n")
-                print(f"\nForward\n")
+                print(f"\nepoch {epoch}")
+                print(f"Loss {loss.item():.5f}\n")
+                print(f"\nForward")
                 out_cap = torch.argmax(output[0], dim=1)
                 demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
                 )] for idx2 in out_cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
