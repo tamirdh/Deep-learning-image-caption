@@ -393,8 +393,7 @@ class DecoderRNNV4(nn.Module):
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
             inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
-            if any([vocabulary.itos[i] == "<EOS>" for i in sampled_ids]):
-                break
+            
 
         # sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
         
