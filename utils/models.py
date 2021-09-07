@@ -521,8 +521,9 @@ class CNNtoRNN(nn.Module):
         output = self.decoderRNN.sample(features, vocab, max_len)
         return output
 
-    def train(self, mode=True):
+    '''def train(self, mode=True):
         super().train(mode)
         if not self.encoderCNN.train_CNN:
             self.encoderCNN.eval()
         return self
+    '''
