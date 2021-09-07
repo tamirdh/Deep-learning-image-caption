@@ -388,7 +388,7 @@ class DecoderRNNV4(nn.Module):
         inputs = features.unsqueeze(1)
         for i in range(max_len):
             hiddens, states = self.lstm(inputs, states)          # hiddens: (batch_size, 1, hidden_size)
-            outputs = self.linear(hiddens.squeeze(1))            # outputs:  (batch_size, vocab_size)
+            outputs = self.fc_out(hiddens.squeeze(1))            # outputs:  (batch_size, vocab_size)
             _, predicted = outputs.max(1)                        # predicted: (batch_size)
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
