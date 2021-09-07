@@ -386,7 +386,7 @@ class DecoderRNNV4(nn.Module):
         """Generate captions for given image features using greedy search."""
         sampled_ids = []
         inputs = features.unsqueeze(1)
-        for i in range(max_leangth):
+        for i in range(max_len):
             hiddens, states = self.lstm(inputs, states)          # hiddens: (batch_size, 1, hidden_size)
             outputs = self.linear(hiddens.squeeze(1))            # outputs:  (batch_size, vocab_size)
             _, predicted = outputs.max(1)                        # predicted: (batch_size)
