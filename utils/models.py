@@ -395,9 +395,15 @@ class DecoderRNNV4(nn.Module):
             inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
             
 
-        # sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
-        
-        return [vocabulary.itos[idx[0]] for idx in sampled_ids]
+        sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
+        sampled_ids = sampled_ids[0].cpu().numpy()               # (1, max_len) -> (max_len)
+        sampled_caption = []
+        for word_id in sampled_ids:
+            word = vocabulary.itos[word_id]
+            sampled_caption.append(word)
+            if word == "<EOS>":
+                break
+        return sampled_caption
 
 
 
