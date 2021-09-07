@@ -397,7 +397,7 @@ class DecoderRNNV4(nn.Module):
 
         # sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
         
-        return [vocabulary.itos[idx] for idx in sampled_ids[0]]
+        return [vocabulary.itos[idx] for idx[0] in sampled_ids]
 
 
 
