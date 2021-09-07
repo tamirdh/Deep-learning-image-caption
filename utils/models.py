@@ -460,22 +460,22 @@ class CNNtoRNN(nn.Module):
         # features: (B,F) -> (1,1,F)
         # w_embed: (1) -> (1,1,E)
         result_caption = []
-        start = vocab.stoi["<SOS>"]
-        start = torch.tensor(start).unsqueeze(0).unsqueeze(0).to(device)
+        # start = vocab.stoi["<SOS>"]
+        # start = torch.tensor(start).unsqueeze(0).unsqueeze(0).to(device)
         with torch.no_grad():
             x = self.encoderCNN(features).unsqueeze(0)
             states = None
             x = self.decoderRNN.fc_in(x)
-            x = torch.cat((x, self.decoderRNN.embed(start)), dim=1)
+            # x = torch.cat((x, self.decoderRNN.embed(start)), dim=1)
             for i in range(max_len):
                 hiddens, states = self.decoderRNN.lstm(x, states)
                 output = self.decoderRNN.fc_out(hiddens.squeeze(0))
                 predicted = output.argmax(1)
-                if i ==0:
-                    result_caption.extend([i.item() for i in predicted])
-                else:
-                    result_caption.append(predicted.item())
-                x = self.decoderRNN.embed(predicted[-1]).unsqueeze(0).unsqueeze(0)
+                #if i ==0:
+                #    result_caption.extend([i.item() for i in predicted])
+                #else:
+                result_caption.append(predicted.item())
+                x = self.decoderRNN.embed(predicted).unsqueeze(0)
 
                 if any([vocab.itos[i] == "<EOS>" for i in result_caption]):
                     break
