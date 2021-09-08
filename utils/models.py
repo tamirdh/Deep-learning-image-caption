@@ -37,27 +37,28 @@ class EncoderCNN(nn.Module):
 
 
 class EncoderCNNV2(nn.Module):
-    def __init__(self, embed_size):
-        """Load the pretrained ResNet-152 and replace top fc layer."""
+    def __init__(self, embed_size, train_CNN=False):
+        # CNN of pretrained ResNet-152
         super(EncoderCNNV2, self).__init__()
         resnet = models.resnet152(pretrained=True)
-        modules = list(resnet.children())[:-1]      # delete the last fc layer.
-        self.resnet = nn.Sequential(*modules)
-        self.linear = nn.Linear(resnet.fc.in_features, embed_size)
-        self.bn = nn.BatchNorm1d(embed_size, momentum=0.01)
+        # delete the last fc layer.
+        modules = list(resnet.children())[:-1]      
+        self.cnn = nn.Sequential(*modules)
+        self.fc_out = nn.Linear(resnet.fc.in_features, embed_size)
+        self.norm = nn.BatchNorm1d(embed_size, momentum=0.01)
         
     def forward(self, images):
-        """Extract feature vectors from input images."""
+        # Extract feature vectors from input images.
         with torch.no_grad():
-            features = self.resnet(images)
+            features = self.cnn(images)
         features = features.reshape(features.size(0), -1)
-        features = self.bn(self.linear(features))
+        features = self.norm(self.fc_out(features))
         return features
 
 
 
 class DecoderRNN(nn.Module):
-    def __init__(self, embed_size, hidden_size, vocab_size):
+    def __init__(self, embed_size, hidden_size, vocab_size, n_features = 0):
         super(DecoderRNN, self).__init__()
         self.hidden_size = hidden_size
         self.vocab_size = vocab_size
@@ -67,14 +68,14 @@ class DecoderRNN(nn.Module):
         self.fc_out = nn.Linear(hidden_size, vocab_size)
         self.dropout = nn.Dropout(0.5)
 
-    def forward(self, features, captions, show=False):
+    def forward(self, features, captions, len):
         '''
         features: Tensor, (B, S_in)
         captions: Tensor, (B, S_cap)
         '''
         # batch size
         batch_size = features.size(0)
-
+        show=False
         # init the hidden and cell states to zeros
         hidden_state = torch.zeros((batch_size, self.hidden_size)).to(device)
         cell_state = torch.zeros((batch_size, self.hidden_size)).to(device)
@@ -131,7 +132,7 @@ class DecoderRNNV2(nn.Module):
         self.fc_out = nn.Linear(in_features=hidden_size,
                                 out_features=vocab_size)
 
-    def forward(self, features, captions):
+    def forward(self, features, captions, len):
         '''
         Uses a combination of the image and caption vector in the lstm
         to predict each word in the embedding layer
@@ -345,7 +346,7 @@ class DecoderRNNEGreed(DecoderRNNV2):
         return output
 
 class DecoderRNNV4(nn.Module):
-    def __init__(self, embed_size, hidden_size, vocab_size):
+    def __init__(self, embed_size, hidden_size, vocab_size, not_used):
         super(DecoderRNNV4, self).__init__()
         self.hidden_size = hidden_size
         self.embed_size = embed_size
@@ -382,8 +383,9 @@ class DecoderRNNV4(nn.Module):
 
         return self.fc_out(output_padded)
 
-    def sample(self, features, vocabulary, max_len=77, states=None):
+    def caption_features(self, features, vocabulary, max_len=77):
         """Generate captions for given image features using greedy search."""
+        states = None
         sampled_ids = []
         inputs = features.unsqueeze(1)
         for i in range(max_len):
@@ -409,7 +411,7 @@ class DecoderRNNV4(nn.Module):
 
 
 class DecoderRNNV5(nn.Module):
-    def __init__(self, embed_size, hidden_size, vocab_size):
+    def __init__(self, embed_size, hidden_size, vocab_size, not_used):
         super(DecoderRNNV5, self).__init__()
         self.hidden_size = hidden_size
         self.embed_size = embed_size
@@ -447,54 +449,7 @@ class DecoderRNNV5(nn.Module):
 
         return self.fc_out(output_padded)
 
-    def caption_features(self, features, vocabulary, max_length=77):
-        '''
-        Vec_len should be the same as is learning. 
-        '''
-        assert features.size(
-            0) == 1, f"Caption features doesn't support batches got {features.shape}"
-        # features: (B,F) -> (1,1,F)
-        # w_embed: (1) -> (1,1,E)
-        features = self.fc_in(features)
-        result_caption = []
-        with torch.no_grad():
-            x = features.unsqueeze(0)
-            states = None
-
-            for _ in range(max_length):
-                hiddens, states = self.lstm(x, states)
-                output = self.fc_out(hiddens.squeeze(0))
-                predicted = output.argmax(1)
-                result_caption.append(predicted.item())
-                x = self.embed(predicted).unsqueeze(0)
-
-                if vocabulary.itos[predicted.item()] == "<EOS>":
-                    break
-
-        return [vocabulary.itos[idx] for idx in result_caption]
-
-class CNNtoRNN(nn.Module):
-    def __init__(self, embed_size, hidden_size, vocab_size, train_CNN=False):
-        global device
-        device = get_device(1)
-        super(CNNtoRNN, self).__init__()
-        self.encoderCNN = EncoderCNNV2(embed_size).to(device)
-        self.decoderRNN = DecoderRNNV4(embed_size, hidden_size, vocab_size).to(device)
-
-    def forward(self, images, captions, length):
-        features = self.encoderCNN(images)
-        outputs = self.decoderRNN(features, captions, length)
-        return outputs
-
-    # def caption_images(self, image, vocab, max_len=50):
-    #     # Inference part
-    #     # Given the image features generate the captions
-    #     features = self.encoderCNN(image)
-    #     decoded = self.decoderRNN.caption_features(features, vocab, max_len)
-    #     return decoded
-
-
-    def caption_images(self, features, vocab, max_len=77):
+    def caption_features(self, features, vocab, max_len=77):
         '''
         Vec_len should be the same as is learning. 
         '''
@@ -503,13 +458,13 @@ class CNNtoRNN(nn.Module):
         # features: (B,F) -> (1,1,F)
         # w_embed: (1) -> (1,1,E)
         result_caption = []
-        # start = vocab.stoi["<SOS>"]
-        # start = torch.tensor(start).unsqueeze(0).unsqueeze(0).to(device)
+        x = features.unsqueeze(0)
+        start = vocab.stoi["<SOS>"]
+        start = torch.tensor(start).unsqueeze(0).unsqueeze(0).to(device)
         with torch.no_grad():
-            x = self.encoderCNN(features).unsqueeze(0)
             states = None
             x = self.decoderRNN.fc_in(x)
-            # x = torch.cat((x, self.decoderRNN.embed(start)), dim=1)
+            x = torch.cat((x, self.decoderRNN.embed(start)), dim=1)
             for i in range(max_len):
                 hiddens, states = self.decoderRNN.lstm(x, states)
                 output = self.decoderRNN.fc_out(hiddens.squeeze(0))
@@ -525,9 +480,32 @@ class CNNtoRNN(nn.Module):
 
         return [vocab.itos[idx] for idx in result_caption]
     
-    def sample(self, image, vocab, max_len):
-        features = self.encoderCNN(image)
-        output = self.decoderRNN.sample(features, vocab, max_len)
+
+class CNNtoRNN(nn.Module):
+    def __init__(self, embed_size, hidden_size, vocab_size, n_features, train_CNN=False):
+        global device
+        device = get_device(1)
+        super(CNNtoRNN, self).__init__()
+        self.encoderCNN = EncoderCNNV2(embed_size, train_CNN).to(device)
+        self.decoderRNN = DecoderRNNV4(embed_size, hidden_size, vocab_size, n_features).to(device)
+
+    def forward(self, images, captions, length):
+        features = self.encoderCNN(images)
+        outputs = self.decoderRNN(features, captions, length)
+        return outputs
+
+    # def caption_images(self, image, vocab, max_len=50):
+    #     # Inference part
+    #     # Given the image features generate the captions
+    #     features = self.encoderCNN(image)
+    #     decoded = self.decoderRNN.caption_features(features, vocab, max_len)
+    #     return decoded
+
+
+    def caption_image(self, image, vocab, max_len):
+        with torch.no_grad():
+            features = self.encoderCNN(image)
+        output = self.decoderRNN.caption_features(features, vocab, max_len)
         return output
 
     '''def train(self, mode=True):

@@ -41,8 +41,9 @@ if __name__ == '__main__':
     vocab_size = len(dataset.vocab)
     embed_size = 512
     hidden_size = 2096
+    n_features = 0 # used for old RNNs
     print(f"Embed size:{embed_size}\nHidden size:{hidden_size}")
-    model = CNNtoRNN(embed_size, hidden_size, vocab_size)
+    model = CNNtoRNN(embed_size, hidden_size, vocab_size, n_features)
     print(model)
     if args.overfit:
         overfit(model, device, data_loader, args.T, 2)

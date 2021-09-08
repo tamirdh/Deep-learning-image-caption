@@ -89,7 +89,7 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
                 #show_image(img[0], title=demo_cap, f_name=None)
                 print(demo_cap)
                 with torch.no_grad():
-                    demo_cap = model.sample(img[0:1].to(
+                    demo_cap = model.caption_image(img[0:1].to(
                         device), vocab=data_loader.dataset.vocab, max_len=30)
                 demo_cap = ' '.join(demo_cap)
                 print("Predicted")
@@ -150,7 +150,7 @@ def overfit(model, device, data_loader, T=250, img_n = 1):
         print("Predicted:")
         model.eval()
         with torch.no_grad():
-            demo_cap = model.sample(img[0:1].to(
+            demo_cap = model.caption_image(img[0:1].to(
                 device), vocab=data_loader.dataset.vocab, max_len=15)
         demo_cap = ' '.join(demo_cap)
         model.train()
@@ -168,7 +168,7 @@ def overfit(model, device, data_loader, T=250, img_n = 1):
     print("Predicted")
     with torch.no_grad():
         model.eval()
-        demo_cap = model.sample(show_img[0:1].to(
+        demo_cap = model.caption_image(show_img[0:1].to(
             device), vocab=data_loader.dataset.vocab, max_len=15)
         demo_cap = ' '.join(demo_cap)
         model.train()
@@ -190,7 +190,7 @@ def validate_model(model, data_loader, device):
     for i in range(10):
         itearator = iter(data_loader)
         img, caption, _ = next(itearator)
-        prediction = model.sample(img[0:1].to(device), vocab=data_loader.dataset.vocab, max_len=25)
+        prediction = model.caption_image(img[0:1].to(device), vocab=data_loader.dataset.vocab, max_len=25)
         print(f"\niteration: {i}")
         print(f"Prediction:{' '.join(prediction)}")
         print(f"Original: {caption[0]}") 
