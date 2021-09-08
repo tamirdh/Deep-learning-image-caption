@@ -29,7 +29,7 @@ class Expirement:
         self.dataloader = get_dataloader(
             self.dataset, batch_size, shuffle=True)
 
-        self.model = fix_model(model, rnn, cnn).to(self.device)
+        self.model = fix_model(model, rnn, cnn, self.dataset).to(self.device)
         if not os.path.exists("results"):
             os.makedirs("results")
         self.fname = f"{self.model.encoderCNN.__class__.__name__}_{self.model.decoderRNN.__class__.__name__}_{self.model.decoderRNN.hidden_size}_{self.model.decoderRNN.embed_size}"
