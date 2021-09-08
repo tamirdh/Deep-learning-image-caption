@@ -1,4 +1,5 @@
 from PIL.Image import init
+import torch.optim as optim
 from utils.models import CNNtoRNN, get_device
 from utils.dataset import get_dataloader, get_dataset
 from utils.train import overfit, train, validate_model
@@ -41,12 +42,19 @@ if __name__ == '__main__':
     vocab_size = len(dataset.vocab)
     embed_size = 512
     hidden_size = 2096
+    learning_rate = 1e-4
     n_features = 0 # used for old RNNs
     print(f"Embed size:{embed_size}\nHidden size:{hidden_size}")
+    
     model = CNNtoRNN(embed_size, hidden_size, vocab_size, n_features)
-    checkpoint = torch.load("checkpoint.torch")
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    ''' ADD WHEN RESUME WORK ON SAME MODEL
+    checkpoint = torch.load("checkpoint.pt")
     model.load_state_dict(checkpoint['model_state_dict'])  
-    model.train()
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    epoch = checkpoint['epoch']
+    loss = checkpoint['loss']
+    '''
     print(model)
     if args.overfit:
         overfit(model, device, data_loader, args.T, 2)
@@ -54,6 +62,6 @@ if __name__ == '__main__':
         #validate_model(model, data_loader, device)
 
     else:
-        train(args.T, model.train(), data_loader, device, args.progress)
+        train(args.T, model.train(), optimizer, data_loader, device, args.progress)
     
     del model

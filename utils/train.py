@@ -31,7 +31,7 @@ def show_image(img, title=None, transform=True, f_name=""):
     plt.pause(0.001)  # pause a bit so that plots are updated
 
 
-def train(max_epochs: int, model, data_loader, device: str, progress=250):
+def train(max_epochs: int, model, optimizer, data_loader, device: str, progress=250):
     """
     Train a given model
     Args:
@@ -48,12 +48,11 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
     # Monitor
     loss_over_time = list()
     # Hyperparameters
-    learning_rate = 1e-4
+    
     
     # init model
     model = model.to(device)
-    criterion = CrossEntropyLoss().to(device)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    criterion = CrossEntropyLoss().to(device)   
     model.train()
 
     # start epochs
