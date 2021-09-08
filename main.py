@@ -49,13 +49,13 @@ if __name__ == '__main__':
     
     model = CNNtoRNN(embed_size, hidden_size, vocab_size, n_features)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    ''' ADD WHEN RESUME WORK ON SAME MODEL
+    # ADD WHEN RESUME WORK ON SAME MODEL
     checkpoint = torch.load("checkpoint.pt")
     model.load_state_dict(checkpoint['model_state_dict'])  
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     epoch = checkpoint['epoch']
     loss = checkpoint['loss']
-    '''
+    
     print(model)
     if args.overfit:
         overfit(model, device, data_loader, args.T, 2)
