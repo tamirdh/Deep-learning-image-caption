@@ -26,6 +26,7 @@ def init_args():
                         help="Batch size for dataloader")
     parser.add_argument("T", type=int, help="Number of epochs to run")
     parser.add_argument("--progress", type=int, default=250, help="Show training loss every X iterations")
+    parser.add_argument("--checkpoint", type=str, default="checkpoint.pt", help="path to model's checkpoint")
     return parser.parse_args()
 
 
