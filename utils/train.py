@@ -54,8 +54,6 @@ def train(max_epochs: int, model, optimizer, data_loader, device: str, checkpoin
     model = model.to(device)
     criterion = CrossEntropyLoss().to(device)   
     model.train()
-    if not os.path.exists("results"):
-        os.makedirs("results")
     # start epochs
     for epoch in range(max_epochs):
         print(f"Epoch:{epoch}", file=sys.stderr)
@@ -78,9 +76,9 @@ def train(max_epochs: int, model, optimizer, data_loader, device: str, checkpoin
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': loss }, f"model_{checkpoint}.data")
+                    'loss': loss }, checkpoint)
                 loss_over_time.append(loss.item())
-                with open(f"results/LOSS_{checkpoint}.data", "wb") as dest:
+                with open(checkpoint.replace("model_", "LOSS_"), "wb") as dest:
                     pickle.dump(loss_over_time, dest)
                 with torch.no_grad():
                     output = model(img.to(device), captions.to(device).long(), length).to(device)

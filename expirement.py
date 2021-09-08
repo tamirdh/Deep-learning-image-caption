@@ -31,12 +31,13 @@ class Expirement:
             self.dataset, batch_size, shuffle=True)
 
         self.model = fix_model(model, rnn, cnn, self.dataset).to(self.device)
-        if not os.path.exists("results"):
-            os.makedirs("results")
+        self.dir_prefix = f"/home/yandex/DLW2021/{username}/results"
+        if not os.path.exists(self.dir_prefix):
+            os.makedirs(self.dir_prefix)
         self.fname = f"{self.model.encoderCNN.__class__.__name__}_{self.model.decoderRNN.__class__.__name__}_{self.model.decoderRNN.hidden_size}_{self.model.decoderRNN.embed_size}"
         if load_model:
             self.model.load_state_dict(
-                torch.load(f"results/model_{self.fname}.data")["model_state_dict"])
+                torch.load(f"{self.dir_prefix}/model_{self.fname}.data")["model_state_dict"])
             self.model.eval()
         print(f"Starting Expirement with {self.fname}")
         print(f"Using train set: {self.use_train}")
@@ -61,11 +62,10 @@ class Expirement:
         return figure
 
     def plot_multiple_losses(self):
-        files = [file for file in os.listdir(
-            "results") if file.startswith("LOSS")]
+        files = [file for file in os.listdir(self.dir_prefix) if file.startswith("LOSS")]
         ax = self._fig.add_subplot(111)
         for file in files:
-            with open(file, "rb") as source:
+            with open(f"{self.dir_prefix}/{file}", "rb") as source:
                 file_data = pickle.load(source)
             x = [i*self._loss_prg for i in range(1, len(file_data)+1)]
             label = os.path.basename(file).replace(
@@ -86,7 +86,7 @@ class Expirement:
         learning_rate = 1e-4
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
         self.model = train(self.epochs, self.model, optimizer,
-                           self.dataloader, self.device, self.fname, self._loss_prg)
+                           self.dataloader, self.device, f"{self.dir_prefix}/model_{self.fname}.data", self._loss_prg)
 
     def run_validation_expirement(self):
         """
@@ -98,7 +98,7 @@ class Expirement:
         bleu_3 = 0
         bleu_4 = 0
         dataiter = iter(self.dataloader)
-        for idx in range(len(dataloader)):
+        for idx in range(len(self.dataloader)):
             img, caption, _ = next(dataiter)
             img = img.to(self.device)
             caption = caption.to(self.device)
@@ -122,20 +122,19 @@ class Expirement:
         bleu_4 = bleu_4/len(self.dataloader)
         result = {"bleu-1": bleu_1, "bleu-2": bleu_2,
                   "bleu-3": bleu_3, "bleu-4": bleu_4}
-        fname = f"results/bleu_{self.fname}.data"
+        fname = f"{self.dir_prefix}/bleu_{self.fname}.data"
         with open(fname, "wb") as dest:
             pickle.dump(result, dest)
         print("Finished BLEU evaluation")
         print(json.dumps(result, indent=4))
 
     def plot_bleu_results(self):
-        bleu_files = [file for file in os.listdir(
-            "results") if file.startswith("bleu")]
+        bleu_files = [file for file in os.listdir(self.dir_prefix) if file.startswith("bleu")]
         col_label = ["BLEU-1", "BLEU-2", "BLEU-3", "BLEU-4"]
         row_label = list()
         cell_text = list()
         for file in bleu_files:
-            with open(f"results/{file}", "rb") as source:
+            with open(f"{self.dir_prefix}/{file}", "rb") as source:
                 bleu_dict = pickle.load(source)
             cell_text.append([bleu_dict["bleu-1"], bleu_dict["bleu-2"],
                               bleu_dict["bleu-3"], bleu_dict["bleu-4"]])
@@ -152,6 +151,8 @@ class Expirement:
 
         ax.set_title("BLEU-N Score of Models", fontweight="bold")
         plt.savefig('bleu_table.png', dpi=1200, format="png")
+        print("Saved BLEU table")
+        self._fig = self._get_plot()
 
     def full_expirement(self):
         self.model.train()
