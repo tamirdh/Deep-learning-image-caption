@@ -98,7 +98,7 @@ class Expirement:
         bleu_3 = 0
         bleu_4 = 0
         dataiter = iter(self.dataloader)
-        for idx in range(10):
+        for idx in range(len(dataloader)):
             img, caption, _ = next(dataiter)
             img = img.to(self.device)
             caption = caption.to(self.device)
