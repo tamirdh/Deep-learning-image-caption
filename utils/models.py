@@ -482,12 +482,16 @@ class DecoderRNNV5(nn.Module):
     
 
 class CNNtoRNN(nn.Module):
-    def __init__(self, embed_size, hidden_size, vocab_size, n_features, train_CNN=False):
+    def __init__(self, embed_size, hidden_size, vocab_size, n_features, train_CNN=False, start = True):
         global device
         device = get_device(1)
         super(CNNtoRNN, self).__init__()
-        self.encoderCNN = EncoderCNNV2(embed_size, train_CNN).to(device)
-        self.decoderRNN = DecoderRNNV4(embed_size, hidden_size, vocab_size, n_features).to(device)
+        if start:
+            self.encoderCNN = EncoderCNNV2(embed_size, train_CNN).to(device)
+            self.decoderRNN = DecoderRNNV4(embed_size, hidden_size, vocab_size, n_features).to(device)
+        else: 
+            self.encoderCNN = None
+            self.decoderRNN = None
 
     def forward(self, images, captions, length):
         features = self.encoderCNN(images)
