@@ -74,7 +74,12 @@ def train(max_epochs: int, model, data_loader, device: str, progress=250):
             optimizer.step()
             if idx > 0 and idx % progress == 0:
                 model.eval()
-                torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
+                torch.save({
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'loss': loss }, "checkpoint.pt")
+                # torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
                 loss_over_time.append(loss.item())
                 with open("LOSS.data", "wb") as dest:
                     pickle.dump(loss_over_time, dest)
