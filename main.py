@@ -63,6 +63,6 @@ if __name__ == '__main__':
         #validate_model(model, data_loader, device)
 
     else:
-        train(args.T, model.train(), optimizer, data_loader, device, args.progress, args.checkpoint)
+        train(args.T, model.train(), optimizer, data_loader, device, args.checkpoint, args.progress)
     
     del model

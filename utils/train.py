@@ -31,7 +31,7 @@ def show_image(img, title=None, transform=True, f_name=""):
     plt.pause(0.001)  # pause a bit so that plots are updated
 
 
-def train(max_epochs: int, model, optimizer, data_loader, device: str, progress=250, checkpoint):
+def train(max_epochs: int, model, optimizer, data_loader, device: str, checkpoint, progress=250):
     """
     Train a given model
     Args:
