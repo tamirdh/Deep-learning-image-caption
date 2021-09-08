@@ -9,6 +9,7 @@ import torch
 import pickle
 import json
 import argparse
+import torch.optim as optim
 
 
 class Expirement:
@@ -82,7 +83,9 @@ class Expirement:
         """
         Train the model and create the relevant LOSS data file
         """
-        self.model = train(self.epochs, self.model,
+        learning_rate = 1e-4
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        self.model = train(self.epochs, self.model, optimizer,
                            self.dataloader, self.device, self._loss_prg, self.fname)
 
     def run_validation_expirement(self):
