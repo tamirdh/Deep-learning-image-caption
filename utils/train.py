@@ -31,7 +31,7 @@ def show_image(img, title=None, transform=True, f_name=""):
     plt.pause(0.001)  # pause a bit so that plots are updated
 
 
-def train(max_epochs: int, model, optimizer, data_loader, device: str, progress=250):
+def train(max_epochs: int, model, optimizer, data_loader, device: str, progress=250, checkpoint):
     """
     Train a given model
     Args:
@@ -77,7 +77,7 @@ def train(max_epochs: int, model, optimizer, data_loader, device: str, progress=
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
-                    'loss': loss }, "checkpoint.pt")
+                    'loss': loss }, checkpoint)
                 # torch.save({'model_state_dict': model.state_dict()}, "checkpoint.torch")
                 loss_over_time.append(loss.item())
                 with open("LOSS.data", "wb") as dest:
