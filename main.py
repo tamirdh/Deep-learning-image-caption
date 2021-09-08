@@ -45,6 +45,7 @@ if __name__ == '__main__':
     print(f"Embed size:{embed_size}\nHidden size:{hidden_size}")
     model = CNNtoRNN(embed_size, hidden_size, vocab_size, n_features)
     model.load_state_dict(torch.load("checkpoint.torch")["model_state_dict"])
+    model.train()
     print(model)
     if args.overfit:
         overfit(model, device, data_loader, args.T, 2)
