@@ -200,7 +200,7 @@ def fix_model(model:CNNtoRNN, rnn, cnn, dataset):
 
 if __name__ == '__main__':
     args = init_args()
-    model = CNNtoRNN(0, 0, 0, 0)
+    model = CNNtoRNN(0, 0, 0, 0, start=False)
     hidden = args.hidden
     embed = args.embed
         
