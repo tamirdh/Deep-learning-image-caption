@@ -86,10 +86,6 @@ class COCODataset(Dataset):
 
 
 
-
-
-
-
 class CapsCollate:
     """
     Collate to apply the padding to the captions with dataloader

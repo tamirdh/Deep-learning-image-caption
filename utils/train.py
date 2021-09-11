@@ -100,6 +100,7 @@ def train(max_epochs: int, model, optimizer, data_loader, device: str, checkpoin
                 # show_image(img_show[0], title=demo_cap, f_name="Predicted.png")
                 print("Original")
                 cap = captions[0]
+
                 # print(cap.long())
                 demo_cap = ' '.join([data_loader.dataset.vocab.itos[idx2.item(
                 )] for idx2 in cap if idx2.item() != data_loader.dataset.vocab.stoi["<PAD>"]])
@@ -158,7 +159,7 @@ def overfit(model, device, data_loader, T=250, img_n = 1):
         demo_cap = ' '.join(demo_cap)
         model.train()
         print(demo_cap)
-                
+               
 
     output = model(img, caption, length).to(device)
     show_img = img.to("cpu")
