@@ -416,11 +416,11 @@ class DecoderRNNV5(nn.Module):
         self.hidden_size = hidden_size
         self.embed_size = embed_size
         self.vocab_size = vocab_size
-        self.num_layers = 1
+        self.num_layers = 3
         self.embed = nn.Embedding(vocab_size, embed_size)
         self.lstm = nn.GRU(input_size=embed_size, hidden_size=hidden_size, num_layers=self.num_layers, batch_first=True, bidirectional=True)
         self.fc_out = nn.Linear(in_features=2*hidden_size, out_features=vocab_size)
-        self.fc_in = nn.Linear(in_features=15*embed_size, out_features=embed_size)
+        self.fc_in = nn.Linear(in_features=embed_size, out_features=embed_size)
 
     def forward(self, features, captions, cap_lengths):
         # cap_lengths - list of the real length of each caption before padding
@@ -457,28 +457,28 @@ class DecoderRNNV5(nn.Module):
             0) == 1, f"Caption features doesn't support batches got {features.shape}"
         # features: (B,F) -> (1,1,F)
         # w_embed: (1) -> (1,1,E)
-        result_caption = []
-        x = features.unsqueeze(0)
-        start = vocab.stoi["<SOS>"]
-        start = torch.tensor(start).unsqueeze(0).unsqueeze(0).to(device)
-        with torch.no_grad():
-            states = None
-            x = self.decoderRNN.fc_in(x)
-            x = torch.cat((x, self.decoderRNN.embed(start)), dim=1)
-            for i in range(max_len):
-                hiddens, states = self.decoderRNN.lstm(x, states)
-                output = self.decoderRNN.fc_out(hiddens.squeeze(0))
-                predicted = output.argmax(1)
-                #if i ==0:
-                #    result_caption.extend([i.item() for i in predicted])
-                #else:
-                result_caption.append(predicted.item())
-                x = self.decoderRNN.embed(predicted).unsqueeze(0)
+        states = None
+        sampled_ids = []
+        inputs = features.unsqueeze(1)
+        inputs = self.fc_in(inputs)
+        for i in range(max_len):
+            hiddens, states = self.lstm(inputs, states)          # hiddens: (batch_size, 1, hidden_size)
+            outputs = self.fc_out(hiddens.squeeze(1))            # outputs:  (batch_size, vocab_size)
+            _, predicted = outputs.max(1)                        # predicted: (batch_size)
+            sampled_ids.append(predicted)
+            inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
+            inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
+            
 
-                if any([vocab.itos[i] == "<EOS>" for i in result_caption]):
-                    break
-
-        return [vocab.itos[idx] for idx in result_caption]
+        sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
+        sampled_ids = sampled_ids[0].cpu().numpy()               # (1, max_len) -> (max_len)
+        sampled_caption = []
+        for word_id in sampled_ids:
+            word = vocab.itos[word_id]
+            sampled_caption.append(word)
+            if word == "<EOS>":
+                break
+        return sampled_caption
     
 
 class CNNtoRNN(nn.Module):

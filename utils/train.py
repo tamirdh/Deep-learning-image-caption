@@ -26,7 +26,8 @@ def show_image(img, title=None, transform=True, f_name=""):
     if title is not None:
         plt.title(title)
     if f_name is not None:
-        plt.imsave(f'{f_name.replace(".png", "")}_{title}.png', img)
+        plt.imshow(img)
+        plt.savefig(f_name, dpi=1000, format="png")
         print(f'Saved {f_name} with caption {plt.title}')
     else:
         plt.imshow(img)

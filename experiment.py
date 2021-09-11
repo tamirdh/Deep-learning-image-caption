@@ -28,7 +28,7 @@ class Expirement:
             self._get_img_dir(), self._get_annot_file(), threshold=5, load_vocab=True)
         batch_size = 4 if mode == "train" else 1
         self.dataloader = get_dataloader(
-            self.dataset, batch_size, shuffle=True)
+            self.dataset, batch_size, shuffle=False)
 
         self.model = fix_model(model, rnn, cnn, self.dataset).to(self.device)
         self.dir_prefix = f"/home/yandex/DLW2021/{username}/results"
@@ -37,7 +37,7 @@ class Expirement:
         self.fname = f"{self.model.encoderCNN.__class__.__name__}_{self.model.decoderRNN.__class__.__name__}_{self.model.decoderRNN.hidden_size}_{self.model.decoderRNN.embed_size}"
         if load_model:
             self.model.load_state_dict(
-                torch.load(f"{self.dir_prefix}/model_{self.fname}.data")["model_state_dict"])
+                torch.load(f"model_weights.pt")["model_state_dict"])
             self.model.eval()
         print(f"Starting Expirement with {self.fname}")
         print(f"Using train set: {self.use_train}")
@@ -102,8 +102,7 @@ class Expirement:
             img, caption, _ = next(dataiter)
             img = img.to(self.device)
             caption = caption.to(self.device)
-            real_cap = [self.dataset.vocab.itos[idx2.item(
-            )] for idx2 in caption[0] if idx2.item() != self.dataset.vocab.stoi["<PAD>"]]
+            real_cap = self.dataset.get_call_caps(idx)
             with torch.no_grad():
                 hypothesis = self.model.caption_image(
                     img, self.dataset.vocab, max_len=77)
@@ -167,13 +166,13 @@ def init_args():
     parser.add_argument("--epochs", type=int, default=10,
                         help="Number of epochs in training", required=False)
     parser.add_argument("--hidden", type=int, default=2096,
-                        help="Hidden layer size", required=True)
+                        help="Hidden layer size", required=False)
     parser.add_argument("--embed", type=int, default=512,
-                        help="Embedding size", required=True)
+                        help="Embedding size", required=False)
     parser.add_argument(
-        "--cnn", choices=["v1", "v2"], help="CNN encoder version", required=True)
+        "--cnn", choices=["v1", "v2"], help="CNN encoder version", required=False)
     parser.add_argument("--rnn", choices=["v1", "v2", "v3", "v4",
-                                          "v5", "greedy"], help="RNN Decoder version", required=True)
+                                          "v5", "greedy"], help="RNN Decoder version", required=False)
     parser.add_argument("--use-train", action="store_true", help="Use train of val of COCO", dest="use_train")
     parser.add_argument("--plot", action="store_true", help="Don't run any expirement, just plot")
     return parser.parse_args()

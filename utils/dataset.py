@@ -72,6 +72,22 @@ class COCODataset(Dataset):
         caption_vec.append(self.vocab.stoi["<EOS>"])
 
         return img, torch.tensor(caption_vec, dtype=torch.long)
+    
+    def get_call_caps(self, idx):
+        img = self.imgs[idx]
+        caps = [self.captions[i] for i,v in enumerate(self.imgs) if v == img]
+        result = list()
+        for cap in caps:
+            caption_vec = ["<SOS>"]
+            caption_vec.extend(cap.split())
+            caption_vec.append("<EOS>")
+            result.append(caption_vec)
+        return result
+
+
+
+
+
 
 
 class CapsCollate:
