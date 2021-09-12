@@ -27,6 +27,7 @@ class EncoderCNN(nn.Module):
         self.cnn.fc = nn.Linear(
             self.cnn.fc.in_features, output_size)
         self.softmax = nn.Softmax(dim=1)
+
     def forward(self, images):
         '''
         Input: image vector
@@ -69,6 +70,7 @@ class DecoderRNN(nn.Module):
         self.dropout = nn.Dropout(0.5)
 
     def forward(self, features, captions, len):
+
         '''
         features: Tensor, (B, S_in)
         captions: Tensor, (B, S_cap)
@@ -76,6 +78,7 @@ class DecoderRNN(nn.Module):
         # batch size
         batch_size = features.size(0)
         show=False
+
         # init the hidden and cell states to zeros
         hidden_state = torch.zeros((batch_size, self.hidden_size)).to(device)
         cell_state = torch.zeros((batch_size, self.hidden_size)).to(device)
@@ -133,6 +136,7 @@ class DecoderRNNV2(nn.Module):
                                 out_features=vocab_size)
 
     def forward(self, features, captions, len):
+
         '''
         Uses a combination of the image and caption vector in the lstm
         to predict each word in the embedding layer

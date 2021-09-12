@@ -7,6 +7,7 @@ import argparse
 import os
 import torch
 
+
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 
@@ -29,6 +30,7 @@ def init_args():
     parser.add_argument("--checkpoint", type=str, default="checkpoint.pt", help="path to model's checkpoint")
     parser.add_argument("--resume", action="store_true", help="Resume training")
     return parser.parse_args()
+
 
 
 
@@ -66,5 +68,6 @@ if __name__ == '__main__':
 
     else:
         train(args.T, model.train(), optimizer, data_loader, device, args.checkpoint, args.progress)
+
     
     del model
