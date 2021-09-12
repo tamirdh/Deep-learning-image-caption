@@ -28,6 +28,7 @@ def init_args():
     parser.add_argument("T", type=int, help="Number of epochs to run")
     parser.add_argument("--progress", type=int, default=250, help="Show training loss every X iterations")
     parser.add_argument("--checkpoint", type=str, default="checkpoint.pt", help="path to model's checkpoint")
+    parser.add_argument("--resume", action="store_true", help="Resume training")
     return parser.parse_args()
 
 
@@ -52,11 +53,12 @@ if __name__ == '__main__':
     model = CNNtoRNN(embed_size, hidden_size, vocab_size, n_features)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     # ADD WHEN RESUME WORK ON SAME MODEL
-    checkpoint = torch.load(args.checkpoint)
-    model.load_state_dict(checkpoint['model_state_dict'])  
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    epoch = checkpoint['epoch']
-    loss = checkpoint['loss']
+    if args.resume:
+        checkpoint = torch.load(args.checkpoint)
+        model.load_state_dict(checkpoint['model_state_dict'])  
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch = checkpoint['epoch']
+        loss = checkpoint['loss']
     
     print(model)
     if args.overfit:
