@@ -74,7 +74,7 @@ To generate captions our model uses a new function called `caption_image(img, vo
 
 You can also view the captioned image using `show_image()` function under [train.py](utils/train.py)
 
-For a complete demo on any image simply run the following:
+For a complete demo on any image using the supplied trained model simply run the following:
 
 ```bash
 python3 caption.py --img "path/to/image/file"
